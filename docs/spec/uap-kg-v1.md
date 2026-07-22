@@ -114,13 +114,7 @@ Exactly **three** YouTube channels until the pilot corpus is fixed and a later e
 | Duration | Long-form preferred (~≥20–30 min) as guidance — not a hard reject for essential short primary-source clips |
 | Profile effort | Research/profile only in wayfinding; **no bulk ingest required for this spec** |
 
-**Seeded pool (3 / ~30)** — remaining picks are curator operational (Appendix A):
-
-| Channel | Title | URL |
-|---------|--------|-----|
-| Jesse Michels | Proof That NASA Censored Moon Photos (and The Astronauts Knew!) | https://youtu.be/uVVqFg2v7ro |
-| Area52 | Jesse Michels, UAPGerb & Chris Ramsay - Flying Saucer Diner | https://youtu.be/HFLBDi87888 |
-| Danny Jones | “There Were 23 of Us” Area 51 Officer Finally Comes Clean \| TD Barnes | https://youtu.be/5hhKLqUbrYQ |
+**Pilot pool: 30 / 30 confirmed** — full list in [`docs/pilot-corpus.md`](../pilot-corpus.md) (10 per seed channel; multi-telling clusters C1–C7).
 
 ### 1.4 In scope / out of scope (v1 product)
 
@@ -878,7 +872,7 @@ Explicit fog graduation. These are **not** model reopeners when left undecided.
 | Export / publish / share subgraphs | Deferred | Personal tool first |
 | Refresh cadence for new uploads | Deferred | Catalog path reusable |
 | Exact seed Topic term list | Deferred (curator) | Rules in §8 |
-| Remaining pilot video picks (~27) | Curator operational | Does not reopen §1.2 |
+| Remaining pilot video picks | **Done** | Full list in `docs/pilot-corpus.md` (2026-07-22) |
 | Legal treatment of personal ASR on third-party audio | Deferred (policy) | §2 documents risk |
 | Exact ASR/diarization vendor thresholds & SKUs | Recommended only | §3 |
 | Wireframes / shortcuts / notifications | Out of model-spec scope | IA is normative |

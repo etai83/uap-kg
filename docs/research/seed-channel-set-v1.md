@@ -32,17 +32,19 @@ Rough scale at profile time (order-of-magnitude only): Jesse Michels ~112K subs;
 
 Cross-presence among the three is already real (e.g. Area52 episodes featuring Jesse Michels; Danny Jones has hosted Jesse Michels and many shared-discourse guests). Soft role quotas at N=3 leave gaps (no dedicated skeptic or official-primary channel) — acceptable under the soft-quota rule.
 
-## Pilot video pool (in progress)
+## Pilot video pool
 
 Target: ~30 videos (10 per channel). Curator supplies all IDs.
 
-| Channel | Title | URL |
-|---------|--------|-----|
-| Jesse Michels | Proof That NASA Censored Moon Photos (and The Astronauts Knew!) | https://youtu.be/uVVqFg2v7ro |
-| Area52 | Jesse Michels, UAPGerb & Chris Ramsay - Flying Saucer Diner | https://youtu.be/HFLBDi87888 |
-| Danny Jones | “There Were 23 of Us” Area 51 Officer Finally Comes Clean \| TD Barnes | https://youtu.be/5hhKLqUbrYQ |
+**Living list:** [`docs/pilot-corpus.md`](../pilot-corpus.md) — **30 / 30 confirmed** (2026-07-22).
 
-**Status:** 3 / ~30. Remaining slots stay open for the curator to append without reopening selection criteria.
+| Channel | Count | Notes |
+|---------|------:|-------|
+| Jesse Michels | 10 | Grusch, Corbell, Lazar, Brazil, skeptic debate, … |
+| Area52 | 10 | Lazar×3, Corbell, Skinwalker, gov videos, experiencers, Jesse diner |
+| Danny Jones | 10 | TD Barnes, Pasulka, Bledsoe, Fox, McGwier, Farah, … |
+
+Full titles + URLs + multi-telling clusters: `docs/pilot-corpus.md`.
 
 ## Profile date
 
