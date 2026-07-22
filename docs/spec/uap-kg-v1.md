@@ -2,16 +2,23 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | `skeleton` — structure + decision pointers; prose fill toward `spec-complete` per `docs/research/spec-document-outline.md` |
-| **Audience** | Implementers and future tickets; sole product user is the **curator** |
+| **Status** | **`spec-complete`** |
+| **Version** | 1.0 |
+| **Completed** | 2026-07-22 |
+| **Audience** | Implementers (human or agent); sole product user is the **curator** |
 | **Destination** | Written system+product **spec** for a personal UAP/NHI research knowledge graph from YouTube |
 | **Not this document** | Running pipeline, graph DB choice, UI pixels, multi-user product |
 
-**Spec complete ≠ product built.** Closing model debates and filling this document meets the wayfinder map destination. Implementation is a separate effort.
+**Spec complete ≠ product built.** This document locks model and product IA decisions so implementation can proceed **without reopening ontology, identity, claim shape, or approval rules**. Building is a **separate effort**.
 
-**Normative detail** lives in decision assets under `docs/research/`. This file is the **single reading surface**: short restatements + pointers. Where restatement and asset conflict, **fix the asset and file an explicit conflict** — do not silent-merge.
+**Normative hierarchy**
 
-**Language:** use terms from [`CONTEXT.md`](../../CONTEXT.md) only.
+1. This file is the **single reading surface** for implementers.  
+2. Decision assets under [`docs/research/`](../research/) are **authoritative long-form detail**.  
+3. Where restatement and asset conflict, **use the asset and file an explicit conflict** — do not silent-merge.  
+4. Domain language: [`CONTEXT.md`](../../CONTEXT.md) only.
+
+**Abbreviations used here:** OQ = open question · SoT = source of truth.
 
 ---
 
@@ -19,11 +26,13 @@
 
 ### 0.1 How to read
 
-1. Read **§1** for product scope.  
-2. Use **§§4–12** for write-path and research-object rules.  
-3. Use **§13** for product UX information architecture.  
-4. Use **§14** as an object/edge checklist.  
-5. Treat **Appendix A** as first-class: deferred items are **not** accidental omissions.
+1. **§1** — product scope, seed channels, pilot.  
+2. **§§2–3** — intake and speech pipeline (recommended stacks).  
+3. **§§4–12** — write-path legality (layers, provenance, claims, identity, research objects, approval).  
+4. **§13** — product UX information architecture (not pixels).  
+5. **§14** — object/edge checklist for storage design.  
+6. **§15** — pass/fail scenarios.  
+7. **Appendix A** — deferred / out-of-scope / forbidden (first-class scope, not omissions).
 
 ### 0.2 Ticket → section index
 
@@ -42,15 +51,25 @@
 | #8 | Contradiction and open-question model | §11 | [`contradiction-and-open-question-model.md`](../research/contradiction-and-open-question-model.md) |
 | #9 | Human approval workflow | §12 | [`human-approval-workflow.md`](../research/human-approval-workflow.md) |
 | #14 | Multi-telling compare UX | §13 | [`multi-telling-compare-ux.md`](../research/multi-telling-compare-ux.md) |
-| #15 | Spec document outline | outline + exit criteria | [`spec-document-outline.md`](../research/spec-document-outline.md) |
-| #1 | Wayfinder map | product framing | GitHub map issue |
+| #15 | Spec document outline | Outline + exit criteria | [`spec-document-outline.md`](../research/spec-document-outline.md) |
+| #1 | Wayfinder map | Product framing | GitHub map issue |
 
 ### 0.3 Document non-goals
 
 - Building the pipeline, graph store, or UI.  
 - Public multi-user product, accounts, collaboration.  
 - Broad opportunistic YouTube scrape / keyword harvest.  
-- Automated live publishing of AI claims without human approval (**forbidden**, not deferred).
+- Automated live publishing of AI claims without human approval (**forbidden**, not deferred).  
+- Wireframes, DB engine choice, multi-language product (Appendix A).
+
+### 0.4 Implementability bar
+
+An implementer must be able to:
+
+1. Name every first-class object using `CONTEXT.md` terms.  
+2. Enforce write-path legality (layer matrix, provenance minimum, identity gates, approval states) without inventing policy.  
+3. Build review + multi-telling UX that only exposes decided actions and dimensions.  
+4. Choose storage/UI tech later without reopening §§4–13.
 
 ---
 
@@ -58,34 +77,57 @@
 
 ### 1.1 User and primary job
 
-- **User:** sole **curator** (personal research tool).  
-- **Primary job:** reconstruct and **cross-check the story** of real-world happenings across seed-channel **Tellings** — with hard epistemic typing and provenance.  
-- **Detail:** map #1 destination; UX spine in §13.
+| Axis | Decision |
+|------|----------|
+| User | Sole **curator** — personal research tool |
+| Primary job | Reconstruct and **cross-check the story** of real-world happenings across seed-channel **Tellings** |
+| Evidence model | Hard epistemic typing + provenance |
+| UX spine | **Event timeline** + **multi-telling compare** (§13) |
 
 ### 1.2 Seed channel set (committed)
 
 Exactly **three** YouTube channels until the pilot corpus is fixed and a later expansion decision is made:
 
-1. Jesse Michels (American Alchemy) — `@JesseMichels`  
-2. Area52 — `@Area52Investigations`  
-3. Danny Jones — `@dannyjones`  
+| # | Channel | Handle | Soft epistemic role |
+|---|---------|--------|---------------------|
+| 1 | Jesse Michels (American Alchemy) | [`@JesseMichels`](https://www.youtube.com/@JesseMichels) | Synthesis + investigative interview |
+| 2 | Area52 (Chris Ramsay) | [`@Area52Investigations`](https://www.youtube.com/@Area52Investigations) | Community synthesis / popularizer |
+| 3 | Danny Jones | [`@dannyjones`](https://www.youtube.com/@dannyjones) | Long-form interview host (broader fringe; UAP thick vertical) |
 
-**Rules:** English-only; YouTube only as source-of-truth; density on shared cases + soft epistemic role diversity; personal curator veto at naming — not a formal “disinfo” taxonomy.
+**Inclusion rules**
+
+- **Density** on shared cases + **soft role diversity** (soft quotas never force zero multi-source overlap).  
+- **English-only**; **YouTube only** as SoT (“episode” = YouTube video).  
+- Prefer core UAP/NHI/disclosure as primary channel focus; curator may name a broader long-form host (Danny Jones).  
+- **Hard exclusions:** non-English primary; not YouTube; pure clip-repost/mirrors; AI-voice essay mills; no original long-form.  
+- Stance/disinfo: **curator veto at naming**, not a formal list taxonomy.  
+- **No expansion beyond 3** until pilot corpus is fixed for first build.
 
 **Detail:** [`seed-channel-set-v1.md`](../research/seed-channel-set-v1.md)
 
 ### 1.3 Pilot corpus
 
-- Target **~10 videos per channel (~30 total)**.  
-- **Human selects every video.** Long-form preferred (~≥20–30 min) as guidance, not a hard reject for essential short primary-source clips.  
-- Completing the remaining picks is **curator operational** (Appendix A); it does not reopen seed rules.
+| Axis | Decision |
+|------|----------|
+| Size | ~**10 videos per channel** (~**30 total**) |
+| Selection | **Curator selects every video** |
+| Duration | Long-form preferred (~≥20–30 min) as guidance — not a hard reject for essential short primary-source clips |
+| Profile effort | Research/profile only in wayfinding; **no bulk ingest required for this spec** |
+
+**Seeded pool (3 / ~30)** — remaining picks are curator operational (Appendix A):
+
+| Channel | Title | URL |
+|---------|--------|-----|
+| Jesse Michels | Proof That NASA Censored Moon Photos (and The Astronauts Knew!) | https://youtu.be/uVVqFg2v7ro |
+| Area52 | Jesse Michels, UAPGerb & Chris Ramsay - Flying Saucer Diner | https://youtu.be/HFLBDi87888 |
+| Danny Jones | “There Were 23 of Us” Area 51 Officer Finally Comes Clean \| TD Barnes | https://youtu.be/5hhKLqUbrYQ |
 
 ### 1.4 In scope / out of scope (v1 product)
 
 | In scope | Out of scope |
 |----------|----------------|
 | Fixed seed channels + pilot videos | Open scrape / keyword harvest |
-| Metadata + ToS-aware transcript path | Standing AV archive product architecture |
+| Metadata + ToS-aware transcript path | Standing AV archive as product architecture |
 | Layered KG + person/event/topic entities | Multi-user / RBAC / collaboration |
 | AI-proposed, curator-gated live graph | Auto-live extraction claims |
 | Event timeline + multi-telling compare | Publish/export product (deferred if ever) |
@@ -107,11 +149,13 @@ Exactly **three** YouTube channels until the pilot corpus is fixed and a later e
 
 ### 2.1 Metadata (primary path)
 
-- Google Cloud + **YouTube Data API v3** for public catalog metadata.  
-- Curated channel allowlist → channel → uploads playlist → video details.  
-- Persist **stable identifiers** (channelId, videoId, publishedAt, title, description, duration, tags, caption-available, URLs).  
-- Volatile stats: treat as cache with policy-aware refresh/delete.  
-- Prefer playlist enumeration over expensive search for “all videos of channel.”
+| Rule | Requirement |
+|------|-------------|
+| API | Google Cloud + **YouTube Data API v3** for public catalog metadata |
+| Enumeration | Curated channel allowlist → channel → uploads playlist → video details |
+| Persist | Stable IDs: `channelId`, `videoId`, `publishedAt`, title, description, duration, tags, caption-available, URLs |
+| Stats | Volatile; treat as **cache** with policy-aware refresh/delete |
+| Search | Prefer playlist enumeration over expensive search for “all videos of channel” |
 
 ### 2.2 Transcripts (tiered)
 
@@ -120,18 +164,21 @@ Exactly **three** YouTube channels until the pilot corpus is fixed and a later e
 | 1 | Owner cooperation (OAuth / Studio export) |
 | 2 | Manual / semi-manual official transcript for sparse high-value videos |
 | 3 | Description / chapters / comments as weak text proxies |
-| Default avoid | Automated third-party caption scrape pipelines as the standing ingestion layer |
+| Default avoid | Automated third-party caption scrape pipelines as the **standing** ingestion layer |
+
+There is **no bulk third-party caption API** suitable as the default product path (research conclusion).
 
 ### 2.3 Audio / ASR posture
 
 - Automated download of AV as a **standing architecture** is a documented risk area (Appendix A).  
-- Product correctness must not depend on redistributing isolated audio tracks.  
-- If personal ASR is used, treat it as a constrained personal-research path, not a “ToS-cleared default product claim.”
+- Product correctness must **not** depend on redistributing isolated audio tracks.  
+- If personal ASR is used, treat it as a constrained personal-research path — **not** a “ToS-cleared default product claim.”
 
 ### 2.4 Playback
 
 - Playback via YouTube embed / open on YouTube.  
-- Do not require a local AV archive for multi-telling or jump-to-timestamp *product* definition (jump still needs resolvable time anchors in the graph — §5).
+- Do not require a local AV archive for multi-telling or jump-to-timestamp *product* definition.  
+- Jump still needs resolvable time anchors in the graph (§5).
 
 ### 2.5 Catalog exception
 
@@ -153,18 +200,25 @@ Official **catalog raw** (channel/video identity and public metadata snapshots) 
 
 ### 3.2 Recommended default stack (R)
 
-- **Local default:** WhisperX (or Whisper + pyannote) for ASR + diarization on long-form English interviews.  
-- **Hosted name ID (optional):** AssemblyAI when needed.  
-- Stack is **recommended**, not ontology — may change without reopening §§4–12.
+| Path | Stack |
+|------|--------|
+| Local default | **WhisperX** + **pyannote** for ASR + diarization on long-form English interviews |
+| Hosted name ID (optional) | **AssemblyAI** when needed |
+
+Stack is **recommended**, not ontology — may change without reopening §§4–12.
 
 ### 3.3 Good-enough bar
 
 - Quality sufficient for **human-reviewed** person mapping on typical 2–4 speaker long-form interviews.  
-- Prefer false-reject over silent wrong merges for live person writes.
+- Prefer **false-reject** over silent wrong merges for live person writes.
 
 ### 3.4 Failure modes implementers must plan for
 
-- Split/merge speaker clusters; ads/announcers; unknown third voice; host/guest swap across shows; confidence not a live gate substitute.
+- Split/merge speaker clusters.  
+- Ads / announcers / audience.  
+- Unknown third voice.  
+- Host appearing as guest on another channel (same Person, guest role for that video).  
+- Confidence scores as review assist only — **never** a live gate substitute.
 
 ---
 
@@ -174,7 +228,15 @@ Official **catalog raw** (channel/video identity and public metadata snapshots) 
 
 ### 4.1 Five hard layers (machine ids fixed)
 
-`raw` → `processed` → `claim` → `inference` → `assumption`
+Order: `raw` → `processed` → `claim` → `inference` → `assumption`
+
+| Machine id | One-line definition |
+|------------|---------------------|
+| `raw` | Uninterpreted source capture: catalog facts + immutable media anchors |
+| `processed` | Normalized structure from raw **without** world-truth (spans, speaker-attributed utterances) |
+| `claim` | Attributed, checkable assertion a speaker made; recording ≠ truth verdict |
+| `inference` | Conclusion **not stated as such** in source; reasoning over claims |
+| `assumption` | Provisional scaffolding premise; not established by source text |
 
 - One required `layer` enum per layered node.  
 - **Layer is immutable** after create.  
@@ -182,23 +244,41 @@ Official **catalog raw** (channel/video identity and public metadata snapshots) 
 
 ### 4.2 Edges
 
-- Edges are **not** layered.  
-- `edge_kind`: **provenance** vs **content**.  
-- Typed predicates with legal endpoint constraints (matrices in the decision asset).
+| Axis | Rule |
+|------|------|
+| Edges layered? | **No** |
+| `edge_kind` | **provenance** vs **content** |
+| Enforcement | Write path validates legal endpoint matrices; illegal pairs are **hard errors** |
 
-### 4.3 Promotion
+**Direction (provenance):** dependent → support (claim `EXTRACTED_FROM` utterance).
 
-- Promotion never rewrites type in place.  
-- Creates a **new** higher-layer node with legal provenance to lower support.
+### 4.3 Provenance matrix (v1)
 
-### 4.4 Illegal masquerade (hard reject)
+| Predicate | Legal source → target | Notes |
+|-----------|----------------------|-------|
+| `DERIVED_FROM` | processed → raw | Structural derivation |
+| `EXTRACTED_FROM` | claim → processed | Primary claim grounding |
+| `GROUNDED_IN` | claim → raw | Optional sugar **only if** processed path also exists |
+| `BASED_ON` | inference → claim \| inference | ≥1 claim required for live inference |
+| `RESTS_ON` | inference (or rare claim) → assumption | Scaffolding dependency |
+| `PROPOSED_BY` | any layered → agent | Actor ref |
+| `APPROVED_BY` | any layered → curator | Required on live transition for gated objects |
+| `SUPERSEDES` | same layer → same layer | Versioning |
 
-- Assumption ↛ claim or inference.  
-- Inference ↛ claim.  
-- Claim ↛ raw/processed.  
-- Assumptions never participate as evidence endpoints of SUPPORTS / CONTRADICTS.
+### 4.4 Illegal provenance (hard reject)
 
-### 4.5 AI vs curator
+| Pattern | Why |
+|---------|-----|
+| assumption → claim (any silent upgrade) | Masquerade |
+| inference → claim (as promotion) | Re-extract as claim only if speaker said it |
+| claim → raw only, no processed path | Skips who-said-what structure |
+| In-place layer rewrite / `PROMOTED_TO` same id | Layer immutability |
+
+### 4.5 Promotion
+
+Promotion **never** rewrites type in place. It creates a **new** higher-layer node with legal provenance to lower support (optional supersession of a prior proposal).
+
+### 4.6 AI vs curator
 
 - AI may propose any non-catalog extraction into **`proposed`**.  
 - Only curator completes gated objects to **`live`**.  
@@ -210,35 +290,64 @@ Official **catalog raw** (channel/video identity and public metadata snapshots) 
 
 **Detail:** [`provenance-minimum.md`](../research/provenance-minimum.md)
 
-### 5.1 Media anchors (raw)
+### 5.1 Honesty bar
 
-- YouTube `video_id` + channel identity.  
-- Timed track references (caption/ASR/diarization artifacts) when speech is involved.  
-- **Timestamp span** (`t_start`, `t_end`) on processed speech that grounds claims.
+Minimum is what a solo curator needs to:
 
-### 5.2 Extraction run
+1. Re-open the video at the right time,  
+2. See who was labeled speaking,  
+3. Re-run or distrust a pipeline,  
+4. Explain why a node exists.
 
-- First-class record of a pipeline or curator write invocation.  
-- Tool/model identity + timestamp; nodes reference the run.
+Not enterprise audit theater.
 
-### 5.3 Required grounding by layer (normative spine)
+### 5.2 Media anchors (raw)
+
+**Catalog raw** (auto-live eligible):
+
+| Field | Required |
+|-------|----------|
+| `channel_id` + durable locator | Yes |
+| `video_id` | Yes |
+| `published_at`, title, duration | Yes for useful catalog |
+
+**Media-track raw** (ASR / caption / diarization anchors):
+
+| Field | Required |
+|-------|----------|
+| `video_id` | Yes |
+| Track kind | Yes |
+| Artifact ref | Yes |
+| Time base (if timed) | Yes |
+| Coarse acquisition method | Yes (e.g. `owner_export`, `personal_asr`) |
+| Extraction run id | Yes for processing jobs |
+
+### 5.3 Extraction run
+
+- First-class process identity for pipeline or curator write invocation.  
+- Tool/model/version live **on the run**; nodes store `extraction_run_id`.  
+- Not required for pure API catalog rows.
+
+### 5.4 Required chain by layer
 
 | Layer | Minimum chain |
 |-------|----------------|
-| Processed (speech) | → raw media anchors (video + time when speech) |
-| Claim | `EXTRACTED_FROM` processed → raw; video + time recoverable |
-| Inference | Premises via claims (and optional live inferences); no new media required |
-| Assumption | Scaffolding links; **not** media-grounded as if it were a claim |
+| **Processed** (speech) | `video_id` + timestamp span + quote text + speaker label (or unresolved) + `DERIVED_FROM` raw + extraction run |
+| **Claim** | ≥1 `EXTRACTED_FROM` processed with full path to raw; run id; Person if live attributed claim |
+| **Inference** | ≥1 `BASED_ON` claim + rationale + run; media via claims (no direct video/time required) |
+| **Assumption** | Statement + why-introduced + run; **no** fake `EXTRACTED_FROM` |
 
-### 5.4 Hard rejects
+Denormalized video/time/quote on claims are **recommended UX caches**, not substitutes for edges.
+
+### 5.5 Hard rejects
 
 - Live claim with only claim→raw shortcut (missing processed path).  
 - Live claim with only `SPEAKER_n` attribution (no approved Person).  
 - Jump-to-timestamp inventing times from Event keys or upload date alone.
 
-### 5.5 Optional in v1
+### 5.6 Optional in v1
 
-Full list of non-requirements is in the decision asset (e.g. heavy citation export formats). Do not block pilot on optional packaging.
+Char/token offsets, full hyperparams, content hashes, PROV-O export, credibility scores on provenance, channel id duplicated on every claim, word-level confidence arrays.
 
 ---
 
@@ -248,41 +357,56 @@ Full list of non-requirements is in the decision asset (e.g. heavy citation expo
 
 ### 6.1 Definition
 
-A **Claim** records: **Speaker S asserts proposition P**, grounded in processed (hence raw) evidence from a specific video, optionally about Event E.
+A **Claim** is a graph node with `layer=claim` that records:
 
-- Recorded assertion **≠** verdict that P is true.  
-- Compare unit for multi-telling (§13).
+> **Speaker S asserts proposition P**, grounded in processed (hence raw) evidence from a specific video (and timestamps), optionally about world **Event** E.
 
-### 6.2 Atomicity
+Claims are the **unit of narrative comparison** across Tellings. They are **recorded assertions**, not endorsements that P is true.
+
+### 6.2 Claim vs inference vs assumption
+
+| | Claim | Inference | Assumption |
+|--|-------|-----------|------------|
+| Source | Speaker **said** it | Beyond transcript | No asserting quote |
+| Spine | → processed → raw | `BASED_ON` claims | `RESTS_ON` scaffolding |
+| SUPPORTS/CONTRADICTS | Yes | Yes | **No** as evidence |
+| Unsure speaker is *correct*? | Still a **claim** | — | — |
+
+### 6.3 Atomicity
 
 - Live claims: **one atomic proposition**.  
-- Compounds: non-live staging only; split before live.
+- Compounds: split before live (conjunctions, fact+explanation, multi-object independent facts).  
+- AI may stage compound drafts for “split these?” UI — never live unsplit.
 
-### 6.3 Spec-level fields (gist)
+### 6.4 Spec-level fields (logical)
 
-- Identity + `layer=claim` + lifecycle.  
-- **Claim kinds (v1):** `world_assertion` \| `meta_speech` \| `self_report`.  
-- Attribution → Person (live); provisional label path only while `proposed`.  
-- `ABOUT_EVENT` preferred; **unbound claim** allowed when keys insufficient.  
-- `ABOUT_TOPIC` optional sugar.  
-- Grounding: EXTRACTED_FROM processed + resolvable raw anchors.  
-- `PROPOSED_BY` / `APPROVED_BY` as applicable.
+| Field / edge | Live required? | Definition |
+|--------------|----------------|------------|
+| `id`, `layer=claim`, lifecycle | Yes | Identity + immutability of layer |
+| `claim_text` | Yes | Normalized atomic proposition |
+| `claim_kind` | Yes (default) | `world_assertion` \| `meta_speech` \| `self_report` |
+| `ATTRIBUTED_TO` → Person | Yes for live | Approved episode map; unresolved only on **proposed** |
+| `ABOUT_EVENT` | Preferred | Unbound allowed when keys insufficient |
+| `ABOUT_TOPIC` | Optional | Thematic; not Event substitute |
+| `EXTRACTED_FROM` → processed | Yes (≥1) | Primary grounding |
+| Processed → raw path | Yes | Video + time recoverable |
+| `PROPOSED_BY` / run id | Yes (AI) | Process identity |
+| `APPROVED_BY` | Yes on live | Curator |
 
-### 6.4 Relations (normative gist)
+**Optional:** polarity, modality, extraction_confidence (review assist only), quote excerpt for UI.
 
-- Provenance: EXTRACTED_FROM, DERIVED_FROM chain, PROPOSED_BY, APPROVED_BY, SUPERSEDES.  
-- Content: ABOUT_EVENT, ABOUT_TOPIC, ATTRIBUTED_TO, SUPPORTS, CONTRADICTS, SAME_ASSERTION_AS, ELABORATES (as allowed by matrices).  
-- Two videos → **two claim nodes**; link with `SAME_ASSERTION_AS` if paraphrastic same assertable — never collapse ids.
+**Out of v1 claim schema:** true/false verdicts; credibility scores; auto-dedupe of paraphrases into one claim id.
 
 ### 6.5 Multi-speaker dialogue
 
-- Attribute to the speaker who **uttered** the words (default).  
-- Host framing vs guest claim remain separate nodes when both assert.  
-- Host meta_speech may be UI-minimized; still not silently merged into guest.
+- One claim per atomic proposition **per speaker**.  
+- Attribute to who **uttered** the words.  
+- Host paraphrase of guest ≠ guest claim (unless guest affirms on guest’s own spans).  
+- Host `meta_speech` may be UI-minimized; never silently merged into guest.
 
-### 6.6 Explicitly out of claim schema (v1)
+### 6.6 Cross-telling
 
-Truth/verified flags; credibility scores; DB types — Appendix A / §10.
+Two videos → **two claim nodes**. Optional `SAME_ASSERTION_AS` for paraphrastic same assertable — **never collapse ids**.
 
 ---
 
@@ -292,33 +416,46 @@ Truth/verified flags; credibility scores; DB types — Appendix A / §10.
 
 ### 7.1 Event ≠ video beat
 
-- **Event:** real-world happening (or coherent multi-day incident / campaign parent).  
-- **Beat:** in-video structural unit — organizes media, never is an Event.  
-- Competing explanations of one happening stay **one Event** with multiple claims.
+| Term | Meaning |
+|------|---------|
+| **Event** | Real-world happening (or coherent multi-day incident / campaign parent) |
+| **Beat** | In-video structural unit — organizes media, never is an Event |
+| **Telling** | One account of an Event in a specific video (or continuous segment) |
+| **Multi-telling** | ≥2 Tellings of the same Event across sources |
 
-### 7.2 Identity keys (v1)
+Competing explanations of one happening stay **one Event** with multiple claims.
 
-Weighted: public name/case label; time window; place/theater; principal actors/platforms; optional documentary anchors.
+### 7.2 Identity keys (weighted)
 
-**Non-keys:** topic alone; video id; speaker who discussed it; claim wording.
+| Key | Role |
+|-----|------|
+| K1 Public name / case label | Strong when discourse has a stable name |
+| K2 Time window | Date or interval; partial OK |
+| K3 Place / theater | Waterspace, base, city, range, hearing venue, … |
+| K4 Principal actors / platforms | Witnesses, units, ships, agencies — **not** retelling host |
+| K5 Documentary anchors (optional) | Hearing ID, report, FOIA, canonical news date |
+
+**Non-keys:** topic alone; video id; upload date; claim interpretation (“NHI” vs “drone”); speaker who discussed it.
 
 ### 7.3 Merge / split / nesting
 
-- Same Event when weighted keys match the same real-world referent.  
-- Split when high-stakes keys conflict without resolution.  
-- Parent/child for campaign → day → encounter style nesting.  
-- Multi-day: prefer one parent with optional phase children when public discourse treats one incident.
+- **Merge candidates:** stable name + compatible keys; or strong time+place+actors; or same documentary anchor.  
+- **Hard split:** non-overlapping time; incompatible theater; different canonical cases; follow-up years later (hearing/release) = **related distinct Events**.  
+- **Claim-only divergence** → same Event, competing claims.  
+- **Nested:** shallow parent → child when discourse treats campaign as one story and multi-telling needs sub-foci.  
+- **Multi-day:** prefer one parent with optional phase children.
 
 ### 7.4 Uncertainty
 
-- **Provisional identity link** + **identity open question** — never silent high-stakes auto-merge.  
-- **Provisional identity bundle** for “compare as if same” without collapsing ids (§13).
+| State | Behavior |
+|-------|----------|
+| Confirmed same/distinct | Curator-gated live merge/split |
+| Provisional same | Separate IDs + **provisional identity link**; optional **provisional identity bundle** for compare |
+| Unknown | Separate + **identity OQ** |
 
-### 7.5 Telling
+**Never silent auto-merge of high-stakes Events.** AI proposes; curator approves.
 
-One **account of an Event** as presented in a specific video (or continuous segment), with speakers/claims/provenance. Multiple Tellings per Event across seed channels is the multi-telling unit.
-
-### 7.6 Authority
+### 7.5 Authority
 
 AI proposes Event create/merge/split; **curator** approves live identity commits.
 
@@ -332,28 +469,33 @@ AI proposes Event create/merge/split; **curator** approves live identity commits
 
 - **Topic:** thematic **type** (controlled taxonomy entity).  
 - **Event:** instance-level **happening**.  
-- Sharing a Topic never merges Events.
+- Sharing a Topic **never** merges Events. Topics are **non-keys** for Event identity.
 
 ### 8.2 Representation
 
 - Lightweight Topic nodes: canonical name + optional aliases + optional shallow parent.  
-- Curator-owned controlled taxonomy; free strings are **surface tags** until mapped.
+- Curator-owned controlled taxonomy (~**15–40** terms v1).  
+- Free strings are **surface tags** on processed until mapped to Topics.
 
 ### 8.3 Attachment
 
-- **Primary:** Event and Claim.  
-- **Optional:** video-level aboutness for browse.  
-- **Processed:** surface tags only (not live Topics until mapped + approved).
+| Attach to | Role |
+|-----------|------|
+| Event, Claim (primary) | `ABOUT_TOPIC` content edges |
+| Inference (allowed) | Same |
+| Video catalog (optional) | Browse aboutness |
+| Processed | Surface tags only until mapped + approved |
 
-### 8.4 Programs / eras
+### 8.4 Non-negotiables
 
-Long-running programs and discourse eras are **Topics** in v1 (unless later split into a dedicated Program entity) — not mega-Events.
+1. Do not mint mega-Events from themes.  
+2. Do not merge Events because they share Topics.  
+3. General theses without fixable keys → Claims + Topic, not invented Event.  
+4. Multi-telling stays **Event-scoped**; Topics are filters / secondary browse.
 
-### 8.5 v1 minimum
+### 8.5 Live gate
 
-- Seed taxonomy roughly **15–40** terms (exact strings curator-owned — Appendix A).  
-- No free-tag explosion as live ontology.  
-- AI proposes assignments; curator approves live.
+AI proposes assignments/new terms; **curator approves** before live.
 
 ---
 
@@ -363,40 +505,54 @@ Long-running programs and discourse eras are **Topics** in v1 (unless later spli
 
 ### 9.1 Label ≠ Person
 
-`SPEAKER_n` is episode-local. It never is a Person node and has no cross-video identity until mapped through a Person.
+`SPEAKER_n` is episode-local. It is **not** a Person and has **no** cross-video identity until mapped through a Person.
 
-### 9.2 Person lifecycle
+### 9.2 Layer model
+
+| Layer | Object | Scope |
+|-------|--------|-------|
+| L0 | Speaker label | One video/job |
+| L1 | Episode attribution (label → person?) | One video |
+| L2 | Person node (+ aliases) | Graph-global |
+| L3 | Claim attribution | Graph |
+
+Live L3 requires approved L1 + live/active L2.
+
+### 9.3 Person lifecycle
 
 `proposed` → `candidate` → `active` | `merged-away` | `deprecated`
 
 - Create/active requires canonical display name, identity evidence, curator approve.  
 - Do not mint persons solely because diarization emitted a new label.
 
-### 9.3 Episode attribution
+### 9.4 Host vs guest defaults
 
-- Mapping speaker label → Person (or **unresolved speaker**).  
-- Seed-channel **host defaults** provisional from channel identity; still curator-gated for live claim attribution.  
-- Guest from title/description/metadata + review.
+| Case | Policy |
+|------|--------|
+| Seed hosts (Jesse Michels, Chris Ramsay, Danny Jones) | Strong **provisional** channel–host defaults; first host person + mappings still curator-confirmed; later clean host maps batch-eligible |
+| Guests | Title/description/credits + optional LLM/API as **proposals only** |
+| Host on another channel | Same Person node; **guest** role for that video |
+| Ads / audience / announcer VO | **Unresolved** — no person mint |
 
-### 9.4 Aliases
+### 9.5 Aliases
 
-- Typed alternate strings for the same Person.  
-- Normalization for matching ≠ changing canonical display name.  
-- Channel/show brands are not person aliases.
+- One **canonical display name** per person; typed aliases (nickname, handle, spelling_variant, title_form, …).  
+- Channel/show brands are **not** person aliases (Area52 ≠ Chris Ramsay as a name bridge).  
+- Normalized string equality **never** alone merges live nodes.
 
-### 9.5 Unresolved
+### 9.6 Unresolved speakers
 
-Unknown voices, ads, audience, low-confidence clusters → unresolved. **No unknown person nodes.** No cross-video merge of unresolved labels.
+- Stay as episode-scoped unresolved labels.  
+- **No** `Unknown Person N` live nodes.  
+- **No** cross-video join of unresolved IDs.
 
-### 9.6 Merge / split
+### 9.7 Merge evidence
 
-- String similarity alone never live-merges.  
-- Multi-signal evidence catalog; human approve for live merge.  
-- Split rare; audit trail retained.
+| Never live-merge on | May propose on | Must approve |
+|---------------------|----------------|--------------|
+| String-only match | Multi-signal (aliases + context, voiceprint + name family) | Create person, collision alias, merge two actives, first guest attribution |
 
-### 9.7 Confidence
-
-Numeric thresholds guide **proposals only**; never auto-live. Prefer false reject.
+Prefer false reject. Voiceprints / AssemblyAI name ID / LLM maps are **proposal signals** only.
 
 ---
 
@@ -406,21 +562,24 @@ Numeric thresholds guide **proposals only**; never auto-live. Prefer false rejec
 
 ### 10.1 Definition
 
-Soft research metadata about a **Person** — not identity, not epistemic layer, not claim truth.
+Soft research metadata on a **Person** — not identity, not epistemic layer, not claim truth.
 
 ### 10.2 In-scope signals
 
-1. **Curator annotations** (primary).  
+1. **Curator free-text annotations** (primary).  
 2. **Role labels** (descriptive: host, guest, witness-participant, secondhand, researcher/journalist, official/institutional, …) — not trust multipliers.  
-3. **Consistency observations** (person × Event): agree / conflict / drift / insufficient data — derived candidates AI-proposed; live annotations curator-gated.
+3. **Consistency observations** (person × Event): agree / conflict / drift / insufficient_data — AI proposes candidates with claim IDs; live annotations curator-gated.
 
 ### 10.3 Hard forbids
 
-No system-invented composite trust scores, reliability %, reputation scores as objective metrics in v1.
+- Composite trust scores, reliability %, reputation scrapes as graph truth.  
+- Auto hide/down-rank claims by credibility.  
+- Credibility objects on `SPEAKER_n` / unresolved labels.  
+- Using credibility to create/merge/split persons or Events.
 
-### 10.4 Separation checklist
+### 10.4 Seed-channel note
 
-Identity clean before credibility; same-person conflict may also appear as claim contradiction (§11) without becoming a global grade.
+Hosts get descriptive host role defaults on their channels. Subscriber counts are **not** credibility signals.
 
 ---
 
@@ -434,33 +593,40 @@ On a **focus Event** (or **provisional identity bundle**), surface **agreement**
 
 ### 11.2 Content edges
 
-- Participants: **claim | inference** only.  
-- Predicates: `SUPPORTS`, `CONTRADICTS`, `SAME_ASSERTION_AS` (and other legal content edges from §4/§6).  
-- **Assumptions never** evidence endpoints.
+| Predicate | Participants |
+|-----------|--------------|
+| `SUPPORTS`, `CONTRADICTS`, `SAME_ASSERTION_AS` | **claim \| inference** only |
+
+**Assumptions never** evidence endpoints of SUPPORTS / CONTRADICTS.
 
 ### 11.3 Contradiction record
 
-First-class research object **outside** the five layers: packages conflict pairs, optional **research facet**, status, curator notes. Not a truth verdict; not an Event split.
+First-class research object **outside** the five layers: packages conflict pairs, optional research facet, status, curator notes. Not a truth verdict; not an Event split.
+
+Lifecycle: `proposed` → `open` → `resolved` | `wontfix` (+ `rejected` / `superseded`).
+
+On resolve: claims stay live recorded assertions — **no winner collapse**, no auto truth flags.
 
 ### 11.4 Open Question
 
-First-class research object with kinds (v1 include: identity, claim-conflict follow-up, coverage gap, key disagreement, attribution, other).
+First-class research object. Kinds (v1): `identity`, `claim_conflict`, `coverage_gap`, `key_disagreement`, `attribution`, `other`.
 
-Lifecycle: `proposed` → `open` → `resolved` | `wontfix` (+ `rejected` for bad proposals).
+Lifecycle: `proposed` → `open` → `resolved` | `wontfix` (+ `rejected`).
 
-- System/AI may propose; **only curator** opens, resolves, or wontfixes.
+- System/AI may propose.  
+- **Only curator** opens, resolves, or wontfixes.
 
 ### 11.5 Coverage gaps
 
-Missing assertable content on a facet under focus scope. Derived UI and/or open question of kind `coverage_gap`. Do not invent opposing claims to fill gaps. Explicit missing premise scaffolding is an **assumption**, not a gap claim.
+Missing assertable content on a facet under focus scope. Derived UI and/or OQ of kind `coverage_gap`. Do **not** invent opposing claims to fill gaps. Explicit missing premise scaffolding is an **assumption**, not a gap claim.
 
 ### 11.6 Identity vs claim conflict
 
-“Same Event as X?” is an **identity open question** / provisional link — **not** a claim contradiction.
+“Same Event as X?” is an **identity OQ** / provisional link — **not** a claim contradiction.
 
 ### 11.7 Agreement
 
-Prefer `SAME_ASSERTION_AS` and/or `SUPPORTS`. Optional agreement cluster may be **derived** for UX; not a required stored type in v1.
+Prefer `SAME_ASSERTION_AS` and/or `SUPPORTS`. Agreement clusters may be **derived** for UX; not a required stored type in v1.
 
 ---
 
@@ -470,43 +636,64 @@ Prefer `SAME_ASSERTION_AS` and/or `SUPPORTS`. Optional agreement cluster may be 
 
 ### 12.1 Lifecycle (layered nodes)
 
-`proposed` | `live` | `rejected` | `superseded`
+| State | Meaning | Default multi-telling evidence? |
+|-------|---------|--------------------------------|
+| `proposed` | Draft; not approved | No (review only) |
+| `live` | Curator-approved | Yes |
+| `rejected` | Declined; retained for audit | No |
+| `superseded` | Replaced via `SUPERSEDES` | No (successor yes) |
 
 Orthogonal to epistemic layer, person states, event provisionality, topic lifecycle.
 
-### 12.2 Sole live gate
+### 12.2 Who may write live
 
-**Curator only** transitions gated objects to `live`. AI never sets live on gated objects.
+| Actor | Create proposed | Set live on gated objects |
+|-------|-----------------|---------------------------|
+| AI / pipeline | Yes | **Never** |
+| System catalog ingest | Optional | Catalog raw exception only |
+| Curator | Yes | **Yes** (only human path) |
 
 ### 12.3 Auto-land vs must-approve
 
 | Auto-land | Must approve before live |
 |-----------|---------------------------|
 | Catalog raw + mechanical media-track pointers | processed, claim, inference, assumption |
-| | Person create / alias / merge / episode map |
+| Stats snapshot cache (catalog-adjacent) | Person create / alias / merge / episode map |
 | | Event merge/split commits |
 | | Topic mint / live assignment |
 | | Live credibility annotations |
-| | Contradiction records & open questions as live research state |
+| | Contradiction records & OQs as live research state |
 
-### 12.4 Live checklists
+**Not auto-land:** ASR-derived processed; high-confidence claims; host defaults without curator action.
 
-Per-object checklists in the decision asset (processed span, claim, inference, assumption, episode map/person). Implementers must not invent weaker gates.
+### 12.4 Live checklists (approve gates)
+
+Approval is a **hard error** if checklist fails.
+
+**Processed:** `layer=processed`; legal `DERIVED_FROM` raw; video_id + timestamp span + quote; speaker_label or explicit unresolved; extraction_run_id + PROPOSED_BY; APPROVED_BY on transition.
+
+**Claim:** atomic claim_text; ≥1 EXTRACTED_FROM live/co-approved processed; processed→raw resolves; ATTRIBUTED_TO active Person with approved episode map; run id + PROPOSED_BY; APPROVED_BY. Unresolved-speaker claims stay proposed by default.
+
+**Inference:** non-empty rationale; ≥1 BASED_ON claim live/co-approved; no masquerade as claim; run + APPROVED_BY.
+
+**Assumption:** statement + why-introduced; no fake EXTRACTED_FROM; run + APPROVED_BY.
+
+**Episode map / Person:** canonical name + evidence for create; video_id + speaker_label + person_id + method for map; multi-signal + approve for merge.
 
 ### 12.5 Bundles, batch, atomic co-approval
 
 - Default review unit: **video-scoped approval bundle**.  
 - **Batch approve** allowed when each node passes its checklist and dependencies close.  
-- **Atomic co-approval** preferred when post-state is matrix-legal.  
+- **Atomic co-approval** preferred when post-state is matrix-legal (e.g. processed + claim + episode map).  
 - Never confidence-timer auto-live; never hide layer badges.
 
 ### 12.6 Supersession
 
-Do not patch live semantic content in place. Mint new same-layer node, `SUPERSEDES` prior, prior → `superseded`.
+Do not patch live semantic content in place. Mint new same-layer node, `SUPERSEDES` prior, prior → `superseded`. Provenance runs preserved.
 
 ### 12.7 Surfaces (IA only)
 
-Primary: approval bundle review; item drill-down; approve actions re-used from multi-telling (§13). No wireframes required for spec completeness.
+Primary: approval bundle review; item drill-down; approve actions reused from multi-telling (§13). No wireframes required for spec completeness.
 
 ---
 
@@ -516,7 +703,7 @@ Primary: approval bundle review; item drill-down; approve actions re-used from m
 
 ### 13.1 Dual spine
 
-1. **Event timeline** — chronological index of world Events (by Event time window, not upload date).  
+1. **Event timeline** — chronological index of world Events (by Event time window, **not** upload date).  
 2. **Multi-telling compare** — line up Tellings for one focus.
 
 Topics **filter** navigation only; never become compare identity.
@@ -524,27 +711,50 @@ Topics **filter** navigation only; never become compare identity.
 ### 13.2 Focus scope
 
 - One **focus Event**, or  
-- Explicit **provisional identity bundle**.  
+- Explicit **provisional identity bundle** (“compare as if same” without collapsing IDs).  
 
 Never “everything under Topic X” as one happening.
 
 ### 13.3 Default sections (IA)
 
-**Timeline:** identity strip · chronological list · filters · provisional/duplicate hints · open-question badges · entry to compare.
+**Timeline**
 
-**Compare:** focus header · Telling strip · Claims board · Agreement · Conflict · Gaps & open questions · Provenance/media · optional scaffolding & credibility side panels.
+- Identity strip · chronological Event list · filters (time, Topic, channel/video, identity state, multi-telling density) · provisional/duplicate hints · OQ badges · entry to compare.
+
+**Compare**
+
+1. Focus header (name, keys, identity state, parent/child exits, Topic chips as filters)  
+2. Telling strip (per video/segment: channel, video, speakers, claim counts)  
+3. Claims board (primary; rows = **live atomic claims**; inferences only if clearly badged)  
+4. Agreement (derived clusters via SAME_ASSERTION_AS / SUPPORTS)  
+5. Conflict (open contradiction records + poles with media jumps)  
+6. Gaps & open questions (coverage by facet + first-class OQs; identity OQs elevated in provisional mode)  
+7. Provenance / media (video + timestamp + quote via claim→processed→raw)
+
+Secondary (nice-to-have): scaffolding panel (assumptions, non-evidence); qualitative credibility notes only — **no trust scores**.
 
 ### 13.4 Comparison dimensions (must answer)
 
-Who (Person) · What (`claim_text`) · When said (video + timestamp) · About when/where (Event keys / facet) · Agreement · Conflict · Gaps · Provenance path · Lifecycle badge.
+| Dimension | What it answers |
+|-----------|-----------------|
+| Who | ATTRIBUTED_TO Person |
+| What | atomic claim_text (+ kind/layer badge) |
+| When said | video + timestamp span |
+| About | focus Event keys + optional research facet |
+| Agreement | same-assertable / support clusters |
+| Conflict | CONTRADICTS + contradiction records (not identity doubt) |
+| Gaps | empty facets ± OQs |
+| Provenance | legal grounding path + lifecycle badge |
 
 ### 13.5 Minimum actions (v1 must)
 
-1. **Approve claim** (reuses §12 checklists).  
-2. **Mark open question**.  
-3. **Jump to timestamp** via claim → processed → raw; disabled if grounding incomplete.
+| Action | Rule |
+|--------|------|
+| **Approve claim** | proposed→live with full §6/§5/§12 checklist; optional atomic co-approve of processed + episode map; AI never sets live |
+| **Mark open question** | Curator creates/promotes OQ on focus/bundle; AI only proposes |
+| **Jump to timestamp** | Open media at claim’s provenance span; **disabled** if grounding incomplete |
 
-Strongly recommended: reject; bind to Event; mark same-assertion; open/resolve contradiction; switch confirmed vs provisional mode; navigate parent/child Events.
+**Strongly recommended:** reject claim; bind to Event; mark same-assertion; open/resolve contradiction; switch confirmed↔provisional mode; navigate parent/child Events.
 
 ### 13.6 Forbidden patterns
 
@@ -552,15 +762,16 @@ Strongly recommended: reject; bind to Event; mark same-assertion; open/resolve c
 - Trust-ranked speaker cards as primary compare unit.  
 - Silent proposed-as-live evidence.  
 - Topic-as-Event compare scope.  
-- Jump inventing times without grounding path.
+- Jump inventing times without grounding path.  
+- Multi-user social chrome / consensus meters.
 
 ### 13.7 Visibility
 
 Default: **live** claims and open research objects. Proposed only in review overlay / provisional mode.
 
-### 13.8 Seed pilot framing
+### 13.8 Pilot framing
 
-Jesse Michels · Area52 · Danny Jones multi-telling density is the design pilot (shared guests/cases). Not an exhaustive corpus requirement for IA correctness.
+Jesse Michels · Area52 · Danny Jones multi-telling density is the design pilot. Sparse “single Telling only” states are honest and allowed.
 
 ---
 
@@ -580,7 +791,7 @@ Checklist for implementers — every item must be representable; storage tech is
 
 ### 14.2 Entities (outside five layers)
 
-Channel · Video (catalog) · Person · Alias · Event · Topic · (Telling as modeling concept / grouping) · Extraction run · Speaker label (episode-local, not entity identity)
+Channel · Video (catalog) · Person · Alias · Event · Topic · Extraction run · Speaker label (episode-local, not entity identity) · Telling (modeling concept / grouping)
 
 ### 14.3 Research / workflow objects
 
@@ -588,9 +799,11 @@ Contradiction record · Open Question · Consistency observation · Approval bun
 
 ### 14.4 Edge catalog (minimum families)
 
-- **Provenance:** DERIVED_FROM, EXTRACTED_FROM, GROUNDED_IN (sugar only with full path), RESTS_ON, PROPOSED_BY, APPROVED_BY, SUPERSEDES, run linkage  
-- **Content:** ABOUT_EVENT, ABOUT_TOPIC, ATTRIBUTED_TO, SUPPORTS, CONTRADICTS, SAME_ASSERTION_AS, ELABORATES (as allowed)  
-- **Identity:** provisional identity links; person merge audit  
+**Provenance:** DERIVED_FROM, EXTRACTED_FROM, GROUNDED_IN (sugar only with full path), BASED_ON, RESTS_ON, PROPOSED_BY, APPROVED_BY, SUPERSEDES, run linkage  
+
+**Content:** ABOUT_EVENT, ABOUT_TOPIC, ATTRIBUTED_TO, SUPPORTS, CONTRADICTS, SAME_ASSERTION_AS, ELABORATES (as allowed)  
+
+**Identity:** provisional identity links; person merge audit  
 
 Exact predicate spellings follow decision assets; do not invent parallel synonym predicates.
 
@@ -604,12 +817,13 @@ Exact predicate spellings follow decision assets; do not invent parallel synonym
 | Event identity | confirmed vs provisional links / bundles |
 | Topic lifecycle | proposed / live / deprecated |
 | Open question | proposed / open / resolved / wontfix / rejected |
+| Contradiction | proposed / open / resolved / wontfix / rejected / superseded |
 
 ---
 
 ## 15. Worked scenarios (normative intent)
 
-Full narratives: research assets. Spec requires these **pass/fail intents**.
+Full narratives live in research assets. Spec requires these **pass/fail intents**.
 
 ### 15.1 Clean 2-speaker interview
 
@@ -637,6 +851,8 @@ Edit creates new same-layer node + SUPERSEDES; old superseded; history walkable;
 | Live person merge on string match alone | Reject |
 | Topic-only Event merge | Reject |
 | Auto-live extraction claims | Reject |
+| Compound multi-proposition live claim | Reject (split first) |
+| Jump to timestamp without grounding | Disable / reject |
 
 ---
 
@@ -662,7 +878,7 @@ Explicit fog graduation. These are **not** model reopeners when left undecided.
 | Export / publish / share subgraphs | Deferred | Personal tool first |
 | Refresh cadence for new uploads | Deferred | Catalog path reusable |
 | Exact seed Topic term list | Deferred (curator) | Rules in §8 |
-| Remaining pilot video picks | Curator operational | Does not reopen §1.2 |
+| Remaining pilot video picks (~27) | Curator operational | Does not reopen §1.2 |
 | Legal treatment of personal ASR on third-party audio | Deferred (policy) | §2 documents risk |
 | Exact ASR/diarization vendor thresholds & SKUs | Recommended only | §3 |
 | Wireframes / shortcuts / notifications | Out of model-spec scope | IA is normative |
@@ -698,8 +914,43 @@ Explicit fog graduation. These are **not** model reopeners when left undecided.
 
 ---
 
+## Appendix C — Policy cheat-sheet
+
+```
+Product who/what/scope?          → §1
+Catalog / transcripts / audio?   → §2
+Who spoke when / ASR labels?     → §3  (Person writes still §9)
+Layer / promotion / masquerade?  → §4
+How do we know where it came from? → §5
+Recorded assertion unit?         → §6
+Real-world happening?            → §7
+Theme / taxonomy?                → §8
+Named human / SPEAKER_n / merge? → §9
+Soft trust metadata?             → §10
+Agreement / conflict / gap / OQ? → §11
+Proposed → live / batch / supersede? → §12
+Timeline or compare UI?          → §13
+DB / language / pixels / multi-user? → Appendix A
+```
+
+---
+
 ## Document history
 
 | Date | Change |
 |------|--------|
-| 2026-07-22 | Skeleton created from closed wayfinder decisions + `spec-document-outline.md`. Status: `skeleton`. |
+| 2026-07-22 | Skeleton created from closed wayfinder decisions + outline. Status: `skeleton`. |
+| 2026-07-22 | Prose-filled §§0–16 + appendices to depth bar; status → **`spec-complete`**. Map destination met. |
+
+---
+
+## Exit criteria (met)
+
+| Gate | Status |
+|------|--------|
+| A. Outline accepted (#15) | Met |
+| B. Decision tickets #2–#15 closed | Met |
+| C. Spec complete (this document) | **Met** — sections 0–16 + App A–B filled; write-path + UX IA specified; fog in App A; CONTEXT.md language |
+| D. Map complete (#1) | Met when map closed with pointer here |
+
+**Spec complete ≠ product built.**

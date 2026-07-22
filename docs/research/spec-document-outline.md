@@ -16,7 +16,7 @@ Decide: outline of the spec document and exit criteria for “spec complete” r
 | Axis | Decision |
 |------|----------|
 | Spec role | **Normative system + product specification** for a personal UAP/NHI research KG from YouTube — **not** an implementation plan, build, or prototype |
-| Primary path | Write decision asset here; assemble the actual v1 spec at **`docs/spec/uap-kg-v1.md`** as a skeleton that **points into** closed research assets (prefer pointers + short normative restatements over full rewrites) |
+| Primary path | Write decision asset here; assemble the actual v1 spec at **`docs/spec/uap-kg-v1.md`** (status **`spec-complete`** as of 2026-07-22) with normative restatements + pointers into closed research assets |
 | Section mapping | Spec sections map **1:1** to closed model areas (tickets #2–#14 + ingestion/diarization research) plus product framing and deferred appendix |
 | Depth bar | Each normative section must state: **decided rules**, **legal/illegal examples or cheat-sheet**, **live-gate / lifecycle**, and **pointers** to the research asset for full worked examples |
 | Spec complete ≠ product built | Completing the written spec is the **map destination**. Building pipeline, DB, or UI is **out of scope** for map #1 |
