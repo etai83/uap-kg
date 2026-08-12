@@ -1,6 +1,6 @@
 # Speech pipeline: long-form YouTube → local ASR + diarization
 
-**Status:** download path verified (2026-08-12); full diarize run needs HF token + optional speech extras  
+**Status:** download verified; **primary ASR tool = [razamit/audio_transcriber](https://github.com/razamit/audio_transcriber)** (MLX + pyannote on Apple Silicon)  
 **Spec:** §2.3 / §3 / Appendix A (personal ASR risk)  
 **Plan:** [`docs/plans/v1-vertical-slice.md`](plans/v1-vertical-slice.md) M2
 
@@ -9,12 +9,13 @@
 Long YouTube videos are awkward for caption APIs. For the personal vertical slice we use:
 
 1. **`yt-dlp -f bestaudio`** (plus modern YouTube workarounds)  
-2. **ffmpeg** → **16 kHz mono WAV**  
-3. **Local ASR** (faster-whisper or WhisperX)  
-4. **pyannote** diarization → `SPEAKER_00`… labels on spans  
-5. Output **`proposed` processed spans** only (never auto-live)
+2. **ffmpeg** → **16 kHz mono WAV** (or pass any ffmpeg-readable file)  
+3. **[`tools/audio_transcriber`](https://github.com/razamit/audio_transcriber)** — MLX Whisper (English turbo) + optional **pyannote** Community-1 diarization  
+4. Output human `.txt` + machine **`proposed` spans JSON** (never auto-live)
 
 Name attribution (label → Person) stays a separate curator-gated step (spec §9).
+
+**Apple Silicon only** for the MLX path (this Mac is M1 Pro — supported).
 
 ## YouTube download gotchas (2025–2026)
 
@@ -29,24 +30,41 @@ Anonymous downloads often fail (SABR / missing formats / n-challenge). This mach
 
 Smoke test succeeded: 20s of `uVVqFg2v7ro` → `webm` → `16 kHz mono wav`.
 
-## Commands
+## Setup
 
 ```bash
 cd /path/to/uap-kg
+
+# 1) yt-dlp env (repo root)
 python3 -m venv .venv
 .venv/bin/pip install -U 'yt-dlp[default]'
 
-# Audio only (always works offline after download)
+# 2) audio_transcriber (vendored)
+git clone https://github.com/razamit/audio_transcriber tools/audio_transcriber
+cd tools/audio_transcriber
+./setup.sh --with-diarization    # MLX Whisper + pyannote (~2GB extras)
+cd ../..
+```
+
+## Commands
+
+```bash
+# A) Download YouTube audio → data/audio/<id>.wav
 .venv/bin/python scripts/download_audio.py https://youtu.be/uVVqFg2v7ro
 .venv/bin/python scripts/download_audio.py fZyKcJQZrDA --section "*0:00-1:00"   # smoke
 .venv/bin/python scripts/download_audio.py --slice-c2                          # full C2 (long)
 
-# ASR + diarization (install extras first)
-.venv/bin/pip install -e '.[speech]'
-export HF_TOKEN=hf_...   # accept pyannote model terms
-.venv/bin/python scripts/transcribe_diarize.py data/audio/<video_id>.wav --model base
-# → data/transcripts/<video_id>.spans.json
+# B) Transcribe + diarize via audio_transcriber (use ITS venv — has mlx/pyannote)
+tools/audio_transcriber/.venv/bin/python scripts/transcribe_audio_transcriber.py \
+  data/audio/<video_id>.wav --lang en --speakers --speakers-count 2
+# → data/audio/<id>_speakers.txt
+# → data/transcripts/<id>.spans.json
+
+# Interactive (optional):
+#   cd tools/audio_transcriber && TRANSCRIBE_LANG=en .venv/bin/python transcribe.py
 ```
+
+**Note:** Two venvs by design — root `.venv` for yt-dlp; `tools/audio_transcriber/.venv` for MLX/pyannote (avoids fighting package sets).
 
 ## Output shape (proposed)
 

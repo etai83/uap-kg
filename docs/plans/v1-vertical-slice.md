@@ -192,19 +192,17 @@ Logical only — names illustrative; must enforce checklists from spec §12.4.
 
 ### M2 — Speech path (1–3 days, env-dependent)
 
-**Locked approach (2026-08-12):** local long-form via yt-dlp audio, not caption scrape.
+**Locked approach (2026-08-12):** local long-form via yt-dlp audio + **[razamit/audio_transcriber](https://github.com/razamit/audio_transcriber)** (MLX Whisper + pyannote on Apple Silicon).
 
-- [x] Recipe: `yt-dlp -f bestaudio` (+ Node EJS + browser cookies as needed) → ffmpeg **16 kHz mono WAV**  
-- [x] Scripts: `scripts/download_audio.py`, `scripts/transcribe_diarize.py`  
+- [x] Recipe: `yt-dlp -f bestaudio` → ffmpeg **16 kHz mono WAV**  
+- [x] Tool: `tools/audio_transcriber` via `./scripts/setup_audio_transcriber.sh`  
+- [x] Bridge: `scripts/transcribe_audio_transcriber.py` → `.txt` + `data/transcripts/<id>.spans.json`  
 - [x] Docs: `docs/speech-pipeline.md`  
-- [ ] Install speech extras + `HF_TOKEN` for pyannote  
-- [ ] Run download for C2 ids (or phase-1a A3+J10)  
-- [ ] Run diarized ASR → `data/transcripts/<id>.spans.json` (**proposed** only)  
+- [x] Smoke: ~15s of `uVVqFg2v7ro` diarized + transcribed (4 spans, MPS)  
+- [ ] Run download + diarized ASR for C2 ids (or phase-1a A3+J10)  
 - [ ] Wire spans into store as processed + raw_track + extraction_run  
 
 **Verify:** D2 — each slice video has spans with speaker labels + timestamps; jump offsets sane on spot-check.
-
-**Smoke verified:** 20s of `uVVqFg2v7ro` downloaded and converted to WAV. Full multi-hour jobs need disk + time + HF token.
 
 **Fallback:** AssemblyAI or manual captions if yt-dlp/YouTube breaks; still record acquisition_method honestly.
 
