@@ -1,0 +1,28 @@
+[project]
+name = "uap-kg"
+version = "0.1.0"
+description = "Personal UAP/NHI research knowledge graph (vertical slice)"
+readme = "docs/spec/uap-kg-v1.md"
+requires-python = ">=3.11"
+dependencies = [
+  "yt-dlp[default]>=2025.1.0",
+]
+
+[project.optional-dependencies]
+speech = [
+  "faster-whisper>=1.0.0",
+  "pyannote.audio>=3.1.0",
+  "torch>=2.0.0",
+]
+# WhisperX is optional and often needs a careful env; install separately if preferred:
+#   pip install whisperx
+
+[project.scripts]
+uap-download-audio = "uap_kg.speech.download:download_audio"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

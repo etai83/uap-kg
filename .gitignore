@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+
+# Local media + ASR artifacts (personal-use; do not commit)
+data/audio/
+data/transcripts/
+*.wav
+*.webm
+*.m4a
+*.opus
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

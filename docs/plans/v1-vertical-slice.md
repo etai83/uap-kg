@@ -86,10 +86,12 @@ All must pass on the **C2 slice videos** below:
 └─────────────┘     └──────────────┘     └────────────────┘
                                                     │
 ┌─────────────┐     ┌──────────────┐     ┌─────────▼────────┐
-│ ASR+diarize │────▶│ track raw +  │────▶│ proposed         │
-│ (WhisperX / │     │ processed    │     │ processed spans  │
-│  hosted)    │     └──────────────┘     └─────────┬────────┘
+│ yt-dlp      │────▶│ audio WAV +  │────▶│ proposed         │
+│ bestaudio → │     │ ASR+diarize  │     │ processed spans  │
+│ Whisper /   │     │ (pyannote)   │     │                  │
+│ pyannote    │     └──────────────┘     └─────────┬────────┘
 └─────────────┘                                    │
+  see docs/speech-pipeline.md                      │
                       ┌────────────────────────────┤
                       ▼                            ▼
                episode map (prop.)          claim extract (prop.)
@@ -114,7 +116,7 @@ All must pass on the **C2 slice videos** below:
 | Storage | **SQLite** first (or Postgres if you already run it) | Solo tool; migrate later |
 | Schema style | Relational tables for entities + edges table | Expresses §14 without Neo4j |
 | Catalog | YouTube Data API v3 | Spec §2 |
-| ASR/diarize | **WhisperX + pyannote** local if GPU/CPU OK; else **AssemblyAI** hosted for speed | Spec §3 R |
+| ASR/diarize | **yt-dlp bestaudio → 16 kHz WAV → faster-whisper (or WhisperX) + pyannote** local; AssemblyAI only as backup | Spec §3 R; `docs/speech-pipeline.md` |
 | Claim proposal | LLM over diarized transcript chunks (provider flexible; SpaceXAI/OpenAI/local) | Propose only → `proposed` |
 | UI | **FastAPI + minimal HTML** (or CLI + Jinja) for approval + compare | Spec forbids multi-user chrome; pixels not law |
 | Playback | YouTube embed / open URL at `t=` seconds | Spec §2.4 |
@@ -190,13 +192,21 @@ Logical only — names illustrative; must enforce checklists from spec §12.4.
 
 ### M2 — Speech path (1–3 days, env-dependent)
 
-- [ ] Job: obtain audio/transcript path **per curator policy** (see Risks)  
-- [ ] WhisperX+pyannote **or** AssemblyAI → write raw_track + **proposed** processed_spans  
-- [ ] Store extraction_run with tool/model  
+**Locked approach (2026-08-12):** local long-form via yt-dlp audio, not caption scrape.
+
+- [x] Recipe: `yt-dlp -f bestaudio` (+ Node EJS + browser cookies as needed) → ffmpeg **16 kHz mono WAV**  
+- [x] Scripts: `scripts/download_audio.py`, `scripts/transcribe_diarize.py`  
+- [x] Docs: `docs/speech-pipeline.md`  
+- [ ] Install speech extras + `HF_TOKEN` for pyannote  
+- [ ] Run download for C2 ids (or phase-1a A3+J10)  
+- [ ] Run diarized ASR → `data/transcripts/<id>.spans.json` (**proposed** only)  
+- [ ] Wire spans into store as processed + raw_track + extraction_run  
 
 **Verify:** D2 — each slice video has spans with speaker labels + timestamps; jump offsets sane on spot-check.
 
-**Acceptable slice shortcut:** start with **manual/official caption download** for 1–2 videos if ASR setup slips — still write as track kind + processed, do not skip provenance.
+**Smoke verified:** 20s of `uVVqFg2v7ro` downloaded and converted to WAV. Full multi-hour jobs need disk + time + HF token.
+
+**Fallback:** AssemblyAI or manual captions if yt-dlp/YouTube breaks; still record acquisition_method honestly.
 
 ### M3 — Identity maps (0.5–1 day)
 
