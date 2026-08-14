@@ -1,0 +1,23 @@
+body {
+  background-color: #051424;
+  color: #d4e4fa;
+}
+.ghost-border { border-color: rgba(132, 147, 150, 0.12); }
+.ghost-divider { border-color: rgba(132, 147, 150, 0.15); }
+.data-table-row:nth-child(even) { background-color: rgba(39, 54, 71, 0.3); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #010f1f; }
+::-webkit-scrollbar-thumb { background: #273647; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #849396; }
+
+.badge-bar { width: 2px; flex-shrink: 0; }
+.span-active { background: rgba(195, 245, 255, 0.08); outline: 1px dashed rgba(0, 218, 243, 0.5); }
+.node-live { border-color: #00daf3; box-shadow: 0 0 10px rgba(0, 218, 243, 0.2); }
+.node-proposed { border-style: dashed; border-color: #849396; opacity: 0.85; }
+.node-selected { outline: 1px solid #00e5ff; }
+.connection-line { stroke: rgba(132, 147, 150, 0.35); stroke-width: 1; fill: none; }
+.connection-line-active { stroke: #00daf3; stroke-width: 1.5; }
+
+.modal-open { overflow: hidden; }
+.hidden-imp { display: none !important; }

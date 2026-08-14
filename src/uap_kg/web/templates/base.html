@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Aetheris Intel{% endblock %} — UAP-KG</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=IBM+Plex+Serif:ital,wght@0,400;1,400&family=Inter:wght@600;700&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-error": "#690005", "on-primary-fixed-variant": "#004f58",
+            "secondary-fixed-dim": "#b7c8e1", "surface-variant": "#273647",
+            "inverse-surface": "#d4e4fa", "secondary-fixed": "#d3e4fe",
+            "on-background": "#d4e4fa", "tertiary": "#e8ecff",
+            "primary-fixed-dim": "#00daf3", "surface-container-high": "#1c2b3c",
+            "inverse-primary": "#006875", "error": "#ffb4ab",
+            "primary-container": "#00e5ff", "on-secondary-container": "#a9bad3",
+            "on-primary-fixed": "#001f24", "tertiary-fixed": "#dae2fd",
+            "on-tertiary-fixed-variant": "#3f465c", "on-primary": "#00363d",
+            "primary-fixed": "#9cf0ff", "tertiary-container": "#c8d0ea",
+            "inverse-on-surface": "#233143", "on-tertiary-fixed": "#131b2e",
+            "on-tertiary-container": "#51596f", "surface": "#051424",
+            "surface-bright": "#2c3a4c", "on-surface": "#d4e4fa",
+            "primary": "#c3f5ff", "surface-dim": "#051424",
+            "on-secondary-fixed-variant": "#38485d", "on-primary-container": "#00626e",
+            "on-secondary": "#213145", "background": "#051424",
+            "surface-container-lowest": "#010f1f", "secondary": "#b7c8e1",
+            "surface-container-highest": "#273647", "surface-container-low": "#0d1c2d",
+            "on-error-container": "#ffdad6", "surface-tint": "#00daf3",
+            "secondary-container": "#3a4a5f", "surface-container": "#122131",
+            "tertiary-fixed-dim": "#bec6e0", "error-container": "#93000a",
+            "on-tertiary": "#283044", "outline": "#849396",
+            "on-surface-variant": "#bac9cc", "outline-variant": "#3b494c",
+            "on-secondary-fixed": "#0b1c30"
+          },
+          borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" },
+          spacing: { "margin-mobile": "16px", "margin-desktop": "48px", "container-max": "1440px", unit: "4px", gutter: "24px" },
+          fontFamily: {
+            "mono-data": ["Geist"], "label-caps": ["Geist"],
+            "body-sm": ["IBM Plex Serif"], "body-md": ["IBM Plex Serif"],
+            "display-lg": ["Inter"], "headline-sm": ["Inter"], "headline-md": ["Inter"]
+          },
+          fontSize: {
+            "mono-data": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "600" }],
+            "body-sm": ["14px", { lineHeight: "22px", fontWeight: "400" }],
+            "body-md": ["16px", { lineHeight: "26px", fontWeight: "400" }],
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-sm": ["18px", { lineHeight: "24px", letterSpacing: "0.05em", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/theme.css"/>
+</head>
+<body class="font-body-md text-body-md antialiased bg-background text-on-surface min-h-screen flex">
+<nav class="md:hidden flex justify-between items-center w-full px-margin-mobile h-16 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/20 fixed top-0 left-0">
+  <div class="flex items-center gap-3">
+    <button id="mobile-menu-btn" class="text-primary" type="button"><span class="material-symbols-outlined">menu</span></button>
+    <div class="font-headline-md text-headline-md font-bold text-primary tracking-tighter">Aetheris Intel</div>
+  </div>
+</nav>
+
+<aside id="sidenav" class="hidden md:flex fixed left-0 top-0 h-full flex-col py-6 z-40 bg-surface-container-lowest border-r border-outline-variant/10 w-64">
+  <div class="px-6 mb-8">
+    <div class="font-headline-sm text-headline-sm text-primary uppercase tracking-widest">Project Aetheris</div>
+    <div class="font-label-caps text-label-caps text-on-surface-variant">uap-kg · Institutional Archive</div>
+  </div>
+  <button type="button" data-open-extract class="mx-6 mb-6 bg-surface-variant hover:bg-surface-container-high text-primary border border-outline-variant/30 font-label-caps text-label-caps py-3 px-4 rounded-DEFAULT flex items-center justify-center gap-2">
+    <span class="material-symbols-outlined text-[16px]">add</span> New Extraction
+  </button>
+  <nav class="flex-1 flex flex-col gap-1 px-3">
+    {% set items = [
+      ('catalog','folder_managed','Catalog','/catalog'),
+      ('timeline','view_timeline','Timeline','/timeline'),
+      ('review','fact_check','Review','/review'),
+      ('compare','grid_on','Compare','/compare'),
+      ('graph','account_tree','Graph','/graph')
+    ] %}
+    {% for key, icon, label, href in items %}
+    <a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-150 {% if active==key %}bg-surface-variant/30 text-primary border-l-2 border-primary-fixed-dim{% else %}text-on-surface-variant/70 hover:text-on-surface hover:bg-surface-container-high border-l-2 border-transparent{% endif %}" href="{{ href }}">
+      <span class="material-symbols-outlined text-[20px]">{{ icon }}</span>
+      <span class="font-label-caps text-label-caps">{{ label }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+  <div class="px-3 pt-4 border-t border-outline-variant/20">
+    <a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant/70 hover:text-on-surface" href="https://github.com/etai83/uap-kg/blob/main/docs/prd.md" target="_blank" rel="noreferrer">
+      <span class="material-symbols-outlined text-[18px]">description</span>
+      <span class="font-label-caps text-label-caps">Documentation</span>
+    </a>
+  </div>
+</aside>
+
+<div id="mobile-drawer" class="hidden-imp md:hidden fixed inset-0 z-40 bg-black/50">
+  <div class="w-64 h-full bg-surface-container-lowest p-4">
+    <button id="mobile-close" class="text-primary mb-4" type="button">Close</button>
+    <a class="block py-2 font-label-caps" href="/catalog">Catalog</a>
+    <a class="block py-2 font-label-caps" href="/timeline">Timeline</a>
+    <a class="block py-2 font-label-caps" href="/review">Review</a>
+    <a class="block py-2 font-label-caps" href="/compare">Compare</a>
+    <a class="block py-2 font-label-caps" href="/graph">Graph</a>
+  </div>
+</div>
+
+<main class="flex-1 ml-0 md:ml-64 pt-16 md:pt-0 min-h-screen flex flex-col">
+  {% block main %}{% endblock %}
+</main>
+
+<div id="extract-modal" class="hidden-imp fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
+  <div class="bg-surface-container-low border border-outline-variant/40 rounded-lg w-full max-w-lg p-6">
+    <h2 class="font-headline-sm text-headline-sm text-primary mb-2">New Extraction</h2>
+    <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Register a YouTube video id in the catalog. ASR is not started from the UI yet.</p>
+    <label class="font-label-caps text-label-caps text-on-surface-variant">YouTube URL or video id</label>
+    <input id="extract-url" class="mt-1 w-full bg-surface-container-lowest border border-outline-variant/50 rounded-DEFAULT py-2 px-3 font-mono-data text-mono-data text-on-surface focus:border-primary outline-none" placeholder="https://www.youtube.com/watch?v=…"/>
+    <div class="flex gap-2 mt-4">
+      <button type="button" data-close-extract class="flex-1 border border-outline-variant/40 py-2 font-label-caps text-label-caps">Cancel</button>
+      <button type="button" id="extract-submit" class="flex-1 bg-surface-variant border border-primary/40 text-primary py-2 font-label-caps text-label-caps">Register</button>
+    </div>
+    <p id="extract-msg" class="font-mono-data text-mono-data text-on-surface-variant mt-3"></p>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

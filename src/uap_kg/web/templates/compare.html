@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Multi-telling Compare{% endblock %}
+{% block main %}
+<div class="flex flex-1 overflow-hidden min-h-[calc(100vh)]">
+  <aside class="w-80 bg-surface-container-lowest border-r ghost-border hidden lg:flex flex-col shrink-0">
+    <div class="p-6 border-b ghost-border">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-mono-data text-mono-data text-on-surface-variant/70 uppercase tracking-widest">Case File</span>
+        <select id="cmp-event" class="bg-surface-container text-mono-data font-mono-data text-[11px] border border-outline-variant/40 rounded px-2 py-1"></select>
+      </div>
+      <h1 id="cmp-title" class="font-headline-md text-headline-md text-on-surface mb-2 mt-4">—</h1>
+      <p id="cmp-blurb" class="font-body-sm text-body-sm text-on-surface-variant/80"></p>
+      <div id="cmp-tags" class="mt-4 flex gap-2 flex-wrap"></div>
+    </div>
+    <div class="p-6 flex-1 overflow-y-auto">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-primary/70 text-sm">help_center</span>
+        <h2 class="font-label-caps text-label-caps tracking-widest uppercase">Open Questions</h2>
+      </div>
+      <div id="cmp-oqs" class="space-y-3"></div>
+      <div class="mt-4 flex gap-2">
+        <input id="cmp-oq-text" class="flex-1 bg-surface-container-lowest border border-outline-variant/40 rounded px-2 py-2 font-body-sm text-body-sm" placeholder="Log inquiry…"/>
+        <button type="button" id="cmp-oq-add" class="border border-outline-variant/40 rounded px-3 font-label-caps text-[11px]">Add</button>
+      </div>
+    </div>
+  </aside>
+  <div class="flex-1 flex flex-col min-w-0">
+    <div class="h-14 border-b ghost-border bg-surface-container/50 flex items-center justify-between px-6">
+      <span class="font-label-caps text-label-caps tracking-widest uppercase flex items-center gap-2">
+        <span class="material-symbols-outlined text-on-surface-variant">grid_on</span> Cross-Reference Matrix
+      </span>
+    </div>
+    <div id="cmp-matrix" class="flex-1 overflow-auto p-6"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>Aetheris.pageCompare({{ event_id|tojson }});</script>
+{% endblock %}

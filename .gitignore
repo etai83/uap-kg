@@ -12,6 +12,7 @@ __pycache__/
 # Local media + ASR artifacts (personal-use; do not commit)
 data/audio/
 data/transcripts/
+data/ui_store.json
 *.wav
 *.webm
 *.m4a
