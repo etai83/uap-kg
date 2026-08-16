@@ -4,7 +4,7 @@
 <header class="hidden md:flex justify-between items-center w-full px-margin-desktop h-20 sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-outline-variant/20">
   <div>
     <h1 class="font-display-lg text-display-lg text-on-surface">Catalog</h1>
-    <p class="font-mono-data text-mono-data text-on-surface-variant mt-1">Seed channels and registered videos.</p>
+    <p class="font-mono-data text-mono-data text-on-surface-variant mt-1">Full pilot corpus (30) plus extra ingest. <span id="cat-count"></span></p>
   </div>
 </header>
 <div class="p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
@@ -12,8 +12,10 @@
     <table class="w-full text-left">
       <thead class="bg-surface-container font-label-caps text-label-caps text-on-surface-variant">
         <tr>
+          <th class="px-4 py-3">Pilot</th>
           <th class="px-4 py-3">Video</th>
           <th class="px-4 py-3">Channel</th>
+          <th class="px-4 py-3">Cluster</th>
           <th class="px-4 py-3">ASR</th>
           <th class="px-4 py-3">Spans</th>
           <th class="px-4 py-3"></th>

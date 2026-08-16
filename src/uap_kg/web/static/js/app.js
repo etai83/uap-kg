@@ -170,18 +170,25 @@ const Aetheris = (() => {
 
   async function pageCatalog() {
     const data = await boot();
+    const n = data.videos.length;
+    const spans = data.videos.filter((v) => v.has_spans).length;
+    if ($("#cat-count")) {
+      $("#cat-count").textContent = `${n} videos · ${spans} with spans on disk`;
+    }
     $("#cat-body").innerHTML = data.videos
       .map(
         (v) => `
       <tr class="data-table-row border-t border-outline-variant/20">
+        <td class="px-4 py-3">${v.pilot || "—"}</td>
         <td class="px-4 py-3">
           <div class="text-on-surface">${v.title}</div>
           <div class="text-on-surface-variant/60">${v.id}</div>
         </td>
         <td class="px-4 py-3">${v.channel}</td>
+        <td class="px-4 py-3">${v.cluster || "—"}</td>
         <td class="px-4 py-3">${v.asr}</td>
         <td class="px-4 py-3">${v.has_spans ? "yes" : "—"}</td>
-        <td class="px-4 py-3">
+        <td class="px-4 py-3 whitespace-nowrap">
           <a class="text-primary underline decoration-dotted" href="/review?video=${v.id}">Review</a>
           <a class="text-primary underline decoration-dotted ml-3" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noreferrer">YouTube</a>
         </td>

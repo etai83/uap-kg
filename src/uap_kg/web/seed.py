@@ -1,70 +1,61 @@
-"""Seed graph for the navigator UI — C2 slice + design-demo Events."""
+"""Seed graph for the navigator UI — full pilot catalog + C2 demo Events."""
 
 from __future__ import annotations
 
+
+def _v(vid, channel, handle, title, cluster, slot):
+    return {
+        "id": vid,
+        "channel": channel,
+        "handle": handle,
+        "title": title,
+        "cluster": cluster,
+        "pilot": slot,
+        "published": "",
+        "duration_s": 0,
+        "asr": "queued",
+        "extraction": "pending",
+    }
+
+
+# All 30 confirmed pilot videos (docs/pilot-corpus.md) + extra ingest.
+PILOT_VIDEOS = [
+    _v("uVVqFg2v7ro", "Jesse Michels", "@JesseMichels", "Proof That NASA Censored Moon Photos (and The Astronauts Knew!)", "C7", "J1"),
+    _v("kRO5jOa06Qw", "Jesse Michels", "@JesseMichels", "If You Still Think UFOs Are Fake, Watch This (David Grusch Interview)", "C1", "J2"),
+    _v("8Rr_nE65KkI", "Jesse Michels", "@JesseMichels", "I Debated UFOs With America’s Top Skeptic (It Got Ugly...)", "C6", "J3"),
+    _v("A2-y_HasHEw", "Jesse Michels", "@JesseMichels", "Congressman Reveals The Alien Brief That Changed The President’s Life", "C1", "J4"),
+    _v("ScE9FaDy-mE", "Jesse Michels", "@JesseMichels", "Spielberg Just Revealed The Truth About Aliens (He Knows!)", "C1", "J5"),
+    _v("nqLnEVcZ8vE", "Jesse Michels", "@JesseMichels", "Brazil's Most Famous UFO Cases Confirmed Real By Defense Minister", "C4", "J6"),
+    _v("-XdvIrexF08", "Jesse Michels", "@JesseMichels", "“If You Knew What I Knew!” -Jeremy Corbell UNLEASHES On Jesse Michels", "C1", "J7"),
+    _v("1sxmSMzqnmA", "Jesse Michels", "@JesseMichels", "“I Operated a UFO… It’s Not What You Think” -Army Sergeant Lyn Buchanan", "C5", "J8"),
+    _v("jMCavr3dVP0", "Jesse Michels", "@JesseMichels", "Former NSA Director Breaks Silence on UFOs", "C1", "J9"),
+    _v("d9tdJ2SkBKQ", "Jesse Michels", "@JesseMichels", "A Weekend With Bob Lazar: Inside Area51's UFOs", "C2", "J10"),
+    _v("HFLBDi87888", "Area52", "@Area52Investigations", "Jesse Michels, UAPGerb & Chris Ramsay - Flying Saucer Diner", "C1", "A1"),
+    _v("vxumcYKCt-M", "Area52", "@Area52Investigations", "Bob Lazar & Travis Walton FINALLY Meet - The Flying Saucer Diner", "C2", "A2"),
+    _v("fZyKcJQZrDA", "Area52", "@Area52Investigations", "Bob Lazar Tells me Everything in NEW Interview - DEBRIEFED ep. 83", "C2", "A3"),
+    _v("SSeJ2883nF4", "Area52", "@Area52Investigations", "Bob Lazar Just Revealed His BIGGEST Secret - DEBRIEFED ep. 87", "C2", "A4"),
+    _v("MVjBLIsXFHQ", "Area52", "@Area52Investigations", "New LEAKED Document Mentions Surviving Aliens - Jeremy Corbell | DEBRIEFED ep. 88", "C1", "A5"),
+    _v("0e3-ssiKUMM", "Area52", "@Area52Investigations", "Skinwalker Ranch Biologist Breaks Silence - Ben Woodruff | DEBRIEFED ep. 90", "C5", "A6"),
+    _v("54vJW1wSZ-w", "Area52", "@Area52Investigations", "ALL Government UFO Videos Explained.", "C3", "A7"),
+    _v("gNr3PbNmGyY", "Area52", "@Area52Investigations", "They Showed Him a REAL UFO - Sedge Masters | ep. 95", "C5", "A8"),
+    _v("ua4dNq1vK2A", "Area52", "@Area52Investigations", "The Most Convincing Alien Encounter Story - Mario Woods | ep. 94", "C5", "A9"),
+    _v("RFI4RWzH3ik", "Area52", "@Area52Investigations", '"Skinny Bob is Real" – Lifelong Abductee Reveals Everything - Erik Nanstiel | DEBRIEFED ep. 85', "C5", "A10"),
+    _v("5hhKLqUbrYQ", "Danny Jones", "@dannyjones", "“There Were 23 of Us” Area 51 Officer Finally Comes Clean | TD Barnes", "C2", "D1"),
+    _v("aQhikls5Ye8", "Danny Jones", "@dannyjones", "Top Aerospace Scientists Suspect UFOs are Biblical Time Machines | Diana Walsh Pasulka", "C5", "D2"),
+    _v("XmVQFX2Pp60", "Danny Jones", "@dannyjones", "NASA's Forbidden Alien Study Finds Proof of Spiritual Beings | Chris & Emily Bledsoe", "C5", "D3"),
+    _v("WLPHnL3xe7g", "Danny Jones", "@dannyjones", "Former CIA Super Spy Explains UFO's | Andrew Bustamante", "C1", "D4"),
+    _v("gXmLpLeR0hk", "Danny Jones", "@dannyjones", "Proof The Military Captured A Live Alien In Brazil | James Fox", "C4", "D5"),
+    _v("faMt1TEzh8Q", "Danny Jones", "@dannyjones", "“There’s 10 of Them” UFO Super Users Confirmed by DARPA Scientist | Bob McGwier", "C1", "D6"),
+    _v("UpFqkpiOAMs", "Danny Jones", "@dannyjones", "The REAL Reason Trump is Rushing to Disclose UFO Files | Dan Farah", "C1", "D7"),
+    _v("ZI0dV5k8T0s", "Danny Jones", "@dannyjones", "CIA Scientist Deathbed Confession: NEW Files Expose Alien Contact | Andy Puharich", "C1", "D8"),
+    _v("GBlvdZGPATg", "Danny Jones", "@dannyjones", "“You’re WRONG” YouTube’s #1 Skeptic Confronts Danny | Professor Dave", "C6", "D9"),
+    _v("78BXV_27V0Q", "Danny Jones", "@dannyjones", "Astrobiologist: What NASA Isn’t Telling Us About Mars", "C3", "D10"),
+    # Extra ingest (not in the original 30)
+    _v("K4gYHs84BIc", "Jesse Michels", "@JesseMichels", "A Top Government Official Told Me Aliens Run Everything! — Dylan Borland", "extra", "X1"),
+]
+
 SEED = {
-    "videos": [
-        {
-            "id": "d9tdJ2SkBKQ",
-            "channel": "Jesse Michels",
-            "handle": "@JesseMichels",
-            "title": "A Weekend With Bob Lazar: Inside Area51's UFOs",
-            "published": "2023-06-14",
-            "duration_s": 7200,
-            "asr": "complete",
-            "extraction": "pending",
-        },
-        {
-            "id": "fZyKcJQZrDA",
-            "channel": "Area52",
-            "handle": "@Area52Investigations",
-            "title": "Bob Lazar Tells me Everything in NEW Interview - DEBRIEFED ep. 83",
-            "published": "2025-01-15",
-            "duration_s": 5400,
-            "asr": "complete",
-            "extraction": "pending",
-        },
-        {
-            "id": "SSeJ2883nF4",
-            "channel": "Area52",
-            "handle": "@Area52Investigations",
-            "title": "Bob Lazar Just Revealed His BIGGEST Secret - DEBRIEFED ep. 87",
-            "published": "2025-02-20",
-            "duration_s": 4800,
-            "asr": "queued",
-            "extraction": "pending",
-        },
-        {
-            "id": "5hhKLqUbrYQ",
-            "channel": "Danny Jones",
-            "handle": "@dannyjones",
-            "title": "There Were 23 of Us — TD Barnes",
-            "published": "2024-02-10",
-            "duration_s": 9000,
-            "asr": "complete",
-            "extraction": "pending",
-        },
-        {
-            "id": "uVVqFg2v7ro",
-            "channel": "Jesse Michels",
-            "handle": "@JesseMichels",
-            "title": "Proof That NASA Censored Moon Photos (and The Astronauts Knew!)",
-            "published": "2023-04-01",
-            "duration_s": 9249,
-            "asr": "complete",
-            "extraction": "partial",
-        },
-        {
-            "id": "K4gYHs84BIc",
-            "channel": "Jesse Michels",
-            "handle": "@JesseMichels",
-            "title": "A Top Government Official Told Me Aliens Run Everything! — Dylan Borland",
-            "published": "2025-08-01",
-            "duration_s": 11964,
-            "asr": "audio_ready",
-            "extraction": "pending",
-        },
-    ],
+    "videos": PILOT_VIDEOS,
     "events": [
         {
             "id": "EVT-89-014",
@@ -75,7 +66,7 @@ SEED = {
             "topics": ["Reverse Engineering", "Element 115"],
             "blurb": "Public claims of employment at a covert facility south of Groom Lake and reverse-engineering of non-terrestrial propulsion. Degree-verification timelines remain disputed.",
             "status": "conflict",
-            "telling_video_ids": ["d9tdJ2SkBKQ", "fZyKcJQZrDA", "5hhKLqUbrYQ"],
+            "telling_video_ids": ["d9tdJ2SkBKQ", "vxumcYKCt-M", "fZyKcJQZrDA", "SSeJ2883nF4", "5hhKLqUbrYQ"],
         },
         {
             "id": "EVT-04-112",
