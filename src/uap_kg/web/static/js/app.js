@@ -447,14 +447,19 @@ const Aetheris = (() => {
       const ql = q.toLowerCase();
       canvas.innerHTML = nodes
         .filter((n) => !ql || n.label.toLowerCase().includes(ql) || n.kind.toLowerCase().includes(ql))
-        .map(
-          (n) => `
+        .map((n) => {
+          const face =
+            n.kind === "Person" && n.label === "Bob Lazar"
+              ? `<img alt="" class="w-8 h-8 rounded object-cover grayscale mix-blend-screen mb-2 border border-outline-variant/30" src="/static/img/portrait-lazar.jpg"/>`
+              : "";
+          return `
         <button type="button" data-nid="${n.id}" class="absolute text-left w-64 p-3 bg-surface-container-low border rounded-lg ${n.lifecycle === "proposed" ? "node-proposed" : "node-live"}" style="left:${n.x}px;top:${n.y}px">
+          ${face}
           <div class="font-label-caps text-label-caps text-primary">${n.kind}</div>
           <div class="font-headline-sm text-[14px] mt-1">${n.label}</div>
           ${n.lifecycle ? `<div class="font-mono-data text-[10px] mt-1">${n.lifecycle}</div>` : ""}
-        </button>`
-        )
+        </button>`;
+        })
         .join("");
 
       $$("#g-canvas [data-nid]").forEach((b) =>
