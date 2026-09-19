@@ -189,7 +189,8 @@ const Aetheris = (() => {
         <td class="px-4 py-3">${v.asr}</td>
         <td class="px-4 py-3">${v.has_spans ? "yes" : "—"}</td>
         <td class="px-4 py-3 whitespace-nowrap">
-          <a class="text-primary underline decoration-dotted" href="/review?video=${v.id}">Review</a>
+          <a class="text-primary underline decoration-dotted" href="/transcripts?video=${v.id}">Transcript</a>
+          <a class="text-primary underline decoration-dotted ml-3" href="/review?video=${v.id}">Review</a>
           <a class="text-primary underline decoration-dotted ml-3" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noreferrer">YouTube</a>
         </td>
       </tr>`
@@ -200,15 +201,24 @@ const Aetheris = (() => {
   async function pageReview(prefVideo) {
     const data = await boot();
     const sel = $("#rv-video");
-    data.videos.forEach((v) => {
+    const withSpans = data.videos.filter((v) => v.has_spans);
+    const withoutSpans = data.videos.filter((v) => !v.has_spans);
+    const addOpt = (v) => {
       const o = document.createElement("option");
       o.value = v.id;
-      o.textContent = `${v.channel}: ${v.title}`;
+      const mark = v.has_spans ? "●" : "○";
+      o.textContent = `${mark} ${v.channel}: ${v.title}`;
       sel.appendChild(o);
-    });
+    };
+    withSpans.forEach(addOpt);
+    withoutSpans.forEach(addOpt);
+    const pendingVideo = withSpans.find((v) =>
+      data.claims.some((c) => c.video_id === v.id && c.lifecycle === "proposed")
+    );
     const prefer =
-      prefVideo ||
-      data.videos.find((v) => v.has_spans)?.id ||
+      (prefVideo && data.videos.some((v) => v.id === prefVideo) && prefVideo) ||
+      pendingVideo?.id ||
+      withSpans[0]?.id ||
       data.videos[0]?.id;
     if (prefer) sel.value = prefer;
 
@@ -216,6 +226,12 @@ const Aetheris = (() => {
       const claims = data.claims.filter((c) => c.video_id === videoId);
       const pending = claims.filter((c) => c.lifecycle === "proposed").length;
       $("#rv-pending").textContent = `${pending} PENDING`;
+      const approveAll = $("#rv-approve-all");
+      if (approveAll) {
+        approveAll.classList.toggle("hidden", pending === 0);
+        approveAll.disabled = pending === 0;
+        approveAll.textContent = "Approve all";
+      }
       $("#rv-claims").innerHTML = claims.length
         ? claims
             .map(
@@ -263,6 +279,32 @@ const Aetheris = (() => {
       );
     };
 
+    $("#rv-approve-all")?.addEventListener("click", async () => {
+      const videoId = sel.value;
+      const pending = data.claims.filter(
+        (c) => c.video_id === videoId && c.lifecycle === "proposed"
+      ).length;
+      if (!pending) return;
+      const btn = $("#rv-approve-all");
+      btn.disabled = true;
+      btn.textContent = "Approving…";
+      try {
+        const res = await fetch(`/api/videos/${videoId}/claims/lifecycle`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lifecycle: "live" }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const fresh = await boot();
+        data.claims = fresh.claims;
+        renderClaims(videoId);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "Approve all";
+        console.error(err);
+      }
+    });
+
     function highlightSpan(t) {
       $$("#rv-spans [data-t]").forEach((el) => {
         const start = Number(el.dataset.t);
@@ -276,8 +318,10 @@ const Aetheris = (() => {
       const id = sel.value;
       const v = data.videos.find((x) => x.id === id);
       $("#rv-asset").textContent = v ? v.title : id;
-      const pack = await fetch(`/api/videos/${id}/spans`).then((r) => r.json());
+      const res = await fetch(`/api/videos/${id}/spans`);
+      const pack = res.ok ? await res.json() : { spans: [] };
       const q = ($("#rv-find").value || "").toLowerCase();
+      const onDisk = (pack.spans || []).length;
       let spans = pack.spans || [];
       if (!spans.length) {
         spans = data.claims
@@ -289,7 +333,26 @@ const Aetheris = (() => {
             speaker_label: c.speaker_label,
           }));
       }
+      const beforeFind = spans.length;
       if (q) spans = spans.filter((s) => (s.text || "").toLowerCase().includes(q));
+      const ready = withSpans.map((x) => x.title).filter(Boolean);
+      const emptyMsg = () => {
+        if (q && beforeFind) {
+          return `<p class="font-body-sm text-on-surface-variant">No spans match “${q}”.</p>`;
+        }
+        if (onDisk) return "";
+        const asr = v?.asr || "queued";
+        const extra =
+          asr === "audio_ready"
+            ? "Audio is on disk; ASR has not been run for this id yet."
+            : asr === "complete"
+              ? "ASR is marked complete but spans JSON was not found."
+              : "This catalog row is still queued for download/ASR.";
+        const hint = ready.length
+          ? `Transcripts on disk: ${ready.join("; ")}.`
+          : "No transcripts are on disk yet.";
+        return `<p class="font-body-sm text-on-surface-variant">${extra} ${hint} Pick a ● video in the header dropdown.</p>`;
+      };
       $("#rv-spans").innerHTML = spans.length
         ? spans
             .map(
@@ -305,7 +368,7 @@ const Aetheris = (() => {
         </div>`
             )
             .join("")
-        : `<p class="font-body-sm text-on-surface-variant">No transcript on disk for this video. Smoke spans exist for <code>uVVqFg2v7ro</code>. Long jobs (e.g. Dylan Borland) must finish ASR first.</p>`;
+        : emptyMsg();
       $$("#rv-spans [data-yt]").forEach((b) =>
         b.addEventListener("click", () => ytJump(id, b.dataset.yt))
       );
@@ -423,6 +486,134 @@ const Aetheris = (() => {
     render();
   }
 
+  async function pageTranscripts(prefVideo) {
+    const data = await boot();
+    const list = $("#tx-list");
+    const sel = $("#tx-video");
+    const withSpans = data.videos.filter((v) => v.has_spans);
+    const withoutSpans = data.videos.filter((v) => !v.has_spans);
+    $("#tx-count").textContent = `${withSpans.length} on disk · ${data.videos.length} catalogued`;
+
+    const addOpt = (v) => {
+      if (!sel) return;
+      const o = document.createElement("option");
+      o.value = v.id;
+      o.textContent = `${v.has_spans ? "●" : "○"} ${v.channel}: ${v.title}`;
+      sel.appendChild(o);
+    };
+    withSpans.forEach(addOpt);
+    withoutSpans.forEach(addOpt);
+
+    const knownPref = prefVideo && data.videos.some((v) => v.id === prefVideo);
+    const prefer = knownPref
+      ? prefVideo
+      : withSpans[0]?.id || data.videos[0]?.id;
+    if (prefer && sel) sel.value = prefer;
+
+    const emptyMsg = (v, q, hadSpans) => {
+      if (q && hadSpans) {
+        return `<p class="font-body-sm text-on-surface-variant">No spans match “${q}”.</p>`;
+      }
+      if (!v) return `<p class="font-body-sm text-on-surface-variant">Unknown video.</p>`;
+      const asr = v.asr || "queued";
+      if (asr === "audio_ready") {
+        return `<p class="font-body-sm text-on-surface-variant">Audio is on disk; ASR has not been run for this id yet. No transcript to show.</p>`;
+      }
+      if (asr === "complete") {
+        return `<p class="font-body-sm text-on-surface-variant">ASR is marked complete but spans JSON was not found.</p>`;
+      }
+      return `<p class="font-body-sm text-on-surface-variant">This catalog row is still queued for download/ASR. ${withSpans.length} transcript(s) are on disk — pick a ● video in the list.</p>`;
+    };
+
+    const paintList = (activeId, q) => {
+      if (!list) return;
+      const ql = (q || "").toLowerCase();
+      const match = (v) =>
+        !ql || `${v.title} ${v.channel} ${v.id} ${v.pilot || ""}`.toLowerCase().includes(ql);
+      const group = (label, rows) => {
+        const vis = rows.filter(match);
+        if (!vis.length) return "";
+        return `<div class="font-label-caps text-[10px] tracking-widest uppercase text-on-surface-variant/70 px-2 pt-3 pb-1">${label}</div>${vis
+          .map((v) => {
+            const on = v.id === activeId;
+            return `<button type="button" data-vid="${v.id}" class="w-full text-left px-3 py-2 rounded border ${
+              on
+                ? "bg-surface-variant/40 border-primary/40 text-on-surface"
+                : "border-transparent hover:bg-surface-container-high text-on-surface-variant"
+            }">
+              <div class="font-mono-data text-[10px] ${v.has_spans ? "text-primary" : ""}">${
+              v.has_spans ? "●" : "○"
+            } ${v.channel}${v.pilot ? " · " + v.pilot : ""}</div>
+              <div class="font-body-sm text-[13px] leading-snug mt-0.5 line-clamp-2">${v.title}</div>
+            </button>`;
+          })
+          .join("")}`;
+      };
+      list.innerHTML = group("On disk", withSpans) + group("Queued", withoutSpans) ||
+        `<p class="font-body-sm text-on-surface-variant px-2">No videos match.</p>`;
+      $$("#tx-list [data-vid]").forEach((b) =>
+        b.addEventListener("click", () => {
+          if (sel) sel.value = b.dataset.vid;
+          loadVideo();
+        })
+      );
+    };
+
+    const loadVideo = async () => {
+      const id = sel?.value || prefer;
+      const v = data.videos.find((x) => x.id === id);
+      history.replaceState(null, "", id ? `/transcripts?video=${encodeURIComponent(id)}` : "/transcripts");
+      $("#tx-title").textContent = v ? v.title : "Unknown video";
+      $("#tx-meta").textContent = v
+        ? `${v.channel} · ${v.id}${v.pilot ? " · " + v.pilot : ""} · asr ${v.asr || "queued"}`
+        : "";
+      const review = $("#tx-review");
+      const yt = $("#tx-yt");
+      if (review) review.href = id ? `/review?video=${encodeURIComponent(id)}` : "/review";
+      if (yt) {
+        yt.href = id ? `https://www.youtube.com/watch?v=${id}` : "#";
+        yt.classList.toggle("pointer-events-none", !id);
+      }
+      paintList(id, $("#tx-filter")?.value || "");
+
+      const q = ($("#tx-find").value || "").toLowerCase();
+      let spans = [];
+      let onDisk = 0;
+      if (v) {
+        const res = await fetch(`/api/videos/${id}/spans`);
+        const pack = res.ok ? await res.json() : { spans: [] };
+        spans = pack.spans || [];
+        onDisk = spans.length;
+      }
+      const beforeFind = spans.length;
+      if (q) spans = spans.filter((s) => (s.text || "").toLowerCase().includes(q));
+      $("#tx-spans").innerHTML = spans.length
+        ? spans
+            .map(
+              (s) => `
+        <div class="flex gap-4 group" data-t="${s.t_start}" data-te="${s.t_end}">
+          <div class="w-16 flex-shrink-0 text-right">
+            <button type="button" class="font-mono-data text-[11px] text-primary" data-yt="${s.t_start}">${fmtTime(s.t_start)}</button>
+            <span class="font-label-caps text-label-caps text-secondary mt-1 block">${s.speaker_label || "?"}</span>
+          </div>
+          <div class="flex-1 pb-3 border-b border-outline-variant/10 p-2 rounded">
+            <p class="font-body-md text-body-md text-on-surface leading-relaxed">${s.text}</p>
+          </div>
+        </div>`
+            )
+            .join("")
+        : emptyMsg(v, q, beforeFind || onDisk);
+      $$("#tx-spans [data-yt]").forEach((b) =>
+        b.addEventListener("click", () => ytJump(id, b.dataset.yt))
+      );
+    };
+
+    sel?.addEventListener("change", loadVideo);
+    $("#tx-find")?.addEventListener("input", loadVideo);
+    $("#tx-filter")?.addEventListener("input", () => paintList(sel?.value || prefer, $("#tx-filter").value));
+    await loadVideo();
+  }
+
   async function pageGraph() {
     const data = await boot();
     const ev = data.events[0];
@@ -490,5 +681,5 @@ const Aetheris = (() => {
 
   document.addEventListener("DOMContentLoaded", wireChrome);
 
-  return { pageTimeline, pageCatalog, pageReview, pageCompare, pageGraph };
+  return { pageTimeline, pageCatalog, pageReview, pageCompare, pageGraph, pageTranscripts };
 })();

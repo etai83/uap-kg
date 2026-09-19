@@ -24,11 +24,15 @@
     <div id="rv-spans" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
   </section>
   <section class="w-full md:w-[420px] flex-shrink-0 flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded">
-    <div class="p-4 border-b border-outline-variant/30 bg-surface-container flex justify-between items-center">
-      <h2 class="font-headline-sm text-headline-sm flex items-center gap-2">
-        <span class="material-symbols-outlined text-primary">save_as</span> Proposed Claims
+    <div class="p-4 border-b border-outline-variant/30 bg-surface-container flex justify-between items-center gap-3">
+      <h2 class="font-headline-sm text-headline-sm flex items-center gap-2 min-w-0 truncate">
+        <span class="material-symbols-outlined text-primary shrink-0">save_as</span>
+        <span class="truncate">Proposed Claims</span>
       </h2>
-      <div id="rv-pending" class="font-mono-data text-mono-data text-[11px] bg-surface-variant px-2 py-1 rounded">0 PENDING</div>
+      <div class="flex items-stretch shrink-0 rounded overflow-hidden border border-outline-variant/40">
+        <div id="rv-pending" class="font-mono-data text-mono-data text-[11px] bg-surface-variant px-2.5 py-1.5 flex items-center">0 PENDING</div>
+        <button type="button" id="rv-approve-all" class="hidden bg-primary/10 hover:bg-primary/20 text-primary font-label-caps text-[10px] px-2.5 py-1.5 border-l border-outline-variant/40">Approve all</button>
+      </div>
     </div>
     <div id="rv-claims" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
   </section>

@@ -47,6 +47,11 @@ def review(request: Request, video: str | None = None):
     return _page(request, "review.html", "review", video_id=video or "")
 
 
+@app.get("/transcripts", response_class=HTMLResponse)
+def transcripts(request: Request, video: str | None = None):
+    return _page(request, "transcripts.html", "transcripts", video_id=video or "")
+
+
 @app.get("/compare", response_class=HTMLResponse)
 def compare(request: Request, event: str | None = "EVT-89-014"):
     return _page(request, "compare.html", "compare", event_id=event or "EVT-89-014")
@@ -110,6 +115,26 @@ def api_claim_lifecycle(claim_id: str, body: dict):
     claim["lifecycle"] = target
     store.save(data)
     return claim
+
+
+@app.post("/api/videos/{video_id}/claims/lifecycle")
+def api_claims_lifecycle_bulk(video_id: str, body: dict):
+    target = body.get("lifecycle")
+    if target not in {"live", "rejected"}:
+        raise HTTPException(400, "invalid lifecycle")
+    data = store.load()
+    if not any(v["id"] == video_id for v in data["videos"]):
+        raise HTTPException(404, "unknown video")
+    updated = 0
+    for claim in data["claims"]:
+        if claim.get("video_id") != video_id:
+            continue
+        if claim.get("lifecycle") != "proposed":
+            continue
+        claim["lifecycle"] = target
+        updated += 1
+    store.save(data)
+    return {"video_id": video_id, "lifecycle": target, "updated": updated}
 
 
 class OqIn(BaseModel):

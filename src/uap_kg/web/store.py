@@ -21,29 +21,41 @@ def _disk_asr(video_id: str) -> tuple[str, str]:
     has_spans = (TRANSCRIPTS / f"{video_id}.spans.json").is_file()
     has_wav = (AUDIO / f"{video_id}.wav").is_file()
     if has_spans:
-        return "complete", "partial" if video_id == "uVVqFg2v7ro" else "pending"
+        return "complete", "pending"
     if has_wav:
         return "audio_ready", "pending"
     return "queued", "pending"
 
 
-def _enrich(video: dict) -> dict:
+def _extraction_status(video_id: str, claims: list[dict] | None) -> str | None:
+    if not claims:
+        return None
+    vclaims = [c for c in claims if c.get("video_id") == video_id]
+    if not vclaims:
+        return None
+    if any(c.get("lifecycle") == "proposed" for c in vclaims):
+        return "proposed"
+    return "complete"
+
+
+def _enrich(video: dict, claims: list[dict] | None = None) -> dict:
     asr, extraction = _disk_asr(video["id"])
     video = dict(video)
     video["asr"] = asr
-    video["extraction"] = extraction
+    video["extraction"] = _extraction_status(video["id"], claims) or video.get("extraction") or extraction
     return video
 
 
 def _merge_catalog(data: dict) -> dict:
     """Ensure every pilot video is in the catalog; keep extra ingest rows."""
     by_id = {v["id"]: v for v in data.get("videos") or []}
+    claims = data.get("claims") or []
     merged = []
     seen = set()
     for canon in PILOT_VIDEOS:
         existing = by_id.get(canon["id"], {})
         row = {**canon, **{k: existing[k] for k in existing if k not in {"title", "channel", "handle", "cluster", "pilot"}}}
-        row = _enrich({**canon, **row})
+        row = _enrich({**canon, **row}, claims)
         # preserve curator-set title/channel if they registered a stub that we now know
         if existing.get("title") and existing["title"] not in {"Untitled ingest", f"Ingest {canon['id']}"}:
             if existing.get("channel") and existing["channel"] != "Unassigned":
@@ -52,7 +64,7 @@ def _merge_catalog(data: dict) -> dict:
         seen.add(canon["id"])
     for extra in data.get("videos") or []:
         if extra["id"] not in seen:
-            extra = _enrich({**_v_fallback(extra), **extra})
+            extra = _enrich({**_v_fallback(extra), **extra}, claims)
             merged.append(extra)
     data["videos"] = merged
     return data
