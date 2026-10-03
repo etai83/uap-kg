@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -65,6 +66,24 @@ def graph(request: Request):
 @app.get("/catalog", response_class=HTMLResponse)
 def catalog(request: Request):
     return _page(request, "catalog.html", "catalog")
+
+
+@app.get("/case/borland", response_class=HTMLResponse)
+def case_borland(request: Request):
+    return _page(request, "case.html", "case")
+
+
+@app.get("/case/borland/sigma", response_class=HTMLResponse)
+def case_borland_sigma(request: Request):
+    return _page(request, "case_sigma.html", "case")
+
+
+@app.get("/api/cases/borland")
+def api_case_borland():
+    path = HERE / "data" / "borland_case.json"
+    if not path.is_file():
+        raise HTTPException(404, "borland case is not built")
+    return json.loads(path.read_text())
 
 
 @app.get("/docs-link", include_in_schema=False)
