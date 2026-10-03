@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Borland case{% endblock %}
+{% block main %}
+<style>
+  main { height: 100vh; max-height: 100vh; overflow: hidden; }
+  @media (max-width: 1023px) {
+    main { height: auto; max-height: none; overflow: auto; }
+    #case-stage { height: 62vh; min-height: 320px; flex: none; }
+  }
+</style>
+<header class="flex flex-wrap justify-between items-center gap-3 w-full px-4 md:px-8 h-auto min-h-16 py-3 bg-surface/95 backdrop-blur-md border-b border-outline-variant/20 shrink-0">
+  <div>
+    <div class="font-label-caps text-label-caps text-primary">Case test</div>
+    <h2 id="case-title" class="font-headline-sm text-headline-sm">Dylan Borland</h2>
+  </div>
+  <p id="case-note" class="font-body-sm text-body-sm text-on-surface-variant max-w-xl"></p>
+  <div class="flex items-center gap-3">
+    <nav class="flex items-center gap-2" aria-label="Graph display">
+      <a id="case-engine-columns" href="/case/borland" class="font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant">Columns</a>
+      <a id="case-engine-sigma" href="/case/borland/sigma" class="font-label-caps text-label-caps px-3 py-1 border border-primary text-primary">3D</a>
+    </nav>
+    <a id="case-video" class="font-mono-data text-mono-data text-primary" href="https://www.youtube.com/watch?v=K4gYHs84BIc" target="_blank" rel="noreferrer">K4gYHs84BIc</a>
+  </div>
+</header>
+<div class="flex flex-wrap gap-2 px-4 md:px-8 py-3 border-b border-outline-variant/20">
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-primary text-primary" data-type="all">All</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="claim">Claims</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="named_person">Named person</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="uap_item">UAP item</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="location">Location</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="date_time">Date and time</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="organization">Organization</button>
+  <button type="button" class="case-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="object">Object</button>
+  <input id="case-search" class="ml-auto bg-surface-container border border-outline-variant/30 text-on-surface font-mono-data text-mono-data rounded px-3 py-1 w-full sm:w-56" placeholder="Find a claim or entity"/>
+  <button id="case-fit" type="button" class="font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant">Fit</button>
+</div>
+<div class="flex-1 flex flex-col lg:flex-row min-h-0">
+  <div id="case-stage" class="flex-1 relative min-h-0 bg-surface-container-lowest">
+    <div id="case-cy" class="absolute inset-0" style="background:#010f1f"></div>
+    <p id="case-status" class="absolute left-3 top-3 font-mono-data text-[11px] text-on-surface-variant pointer-events-none bg-surface/80 border border-outline-variant/30 px-2 py-1"></p>
+    <div id="case-legend" class="absolute left-3 bottom-3 right-3 sm:right-auto flex flex-wrap gap-x-3 gap-y-1 max-w-xl bg-surface/80 border border-outline-variant/30 px-3 py-2 font-mono-data text-[11px] text-on-surface-variant pointer-events-none">
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#00E5FF"></i>Person</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FFE14A"></i>Claim</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF3B5C"></i>UAP item</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#3DFF8A"></i>Location</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF7A1A"></i>Organization</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF3EC8"></i>Named person</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#4F86FF"></i>Object</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#E2B0FF"></i>Date</span>
+    </div>
+  </div>
+  <aside id="case-inspect" class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-outline-variant/20 bg-surface-container p-5 overflow-y-auto max-h-[46vh] lg:max-h-none">
+    <div class="font-label-caps text-label-caps text-on-surface-variant mb-2">Inspector</div>
+    <div id="case-inspect-body" class="font-body-sm text-body-sm text-on-surface-variant">Select a claim or an entity.</div>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="importmap">
+{
+  "imports": {
+    "3d-force-graph": "https://esm.sh/3d-force-graph@1.77.1",
+    "three-spritetext": "https://esm.sh/three-spritetext@1.9.6"
+  }
+}
+</script>
+<script type="module" src="/static/js/case-3d.js?v=20261003e"></script>
+{% endblock %}

@@ -1,0 +1,587 @@
+{
+  "case": {
+    "id": "CASE-BORLAND",
+    "title": "Dylan Borland on American Alchemy",
+    "video_id": "K4gYHs84BIc",
+    "host": "Jesse Michels",
+    "note": "Structure test on one interview. Each claim is proposed. The claimant is the person who spoke it. A named person is someone the words refer to. Nothing on this page is a verified finding."
+  },
+  "persons": [
+    {
+      "id": "PER-BORLAND",
+      "name": "Dylan Borland",
+      "role": "claimant"
+    },
+    {
+      "id": "PER-MICHELS",
+      "name": "Jesse Michels",
+      "role": "host"
+    },
+    {
+      "id": "PER-PLAYED",
+      "name": "Played speaker",
+      "role": "played voice"
+    }
+  ],
+  "entities": [
+    {
+      "id": "ENT-001",
+      "name": "United States Air Force",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-002",
+      "name": "summer 2012",
+      "type": "date_time"
+    },
+    {
+      "id": "ENT-003",
+      "name": "about 1:30",
+      "type": "date_time"
+    },
+    {
+      "id": "ENT-004",
+      "name": "NASA hangar",
+      "type": "location"
+    },
+    {
+      "id": "ENT-005",
+      "name": "equilateral triangle",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-006",
+      "name": "Langley",
+      "type": "location"
+    },
+    {
+      "id": "ENT-007",
+      "name": "triangle",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-008",
+      "name": "white light",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-009",
+      "name": "MFR",
+      "type": "object"
+    },
+    {
+      "id": "ENT-010",
+      "name": "craft",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-011",
+      "name": "the object",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-012",
+      "name": "aircraft carriers",
+      "type": "object"
+    },
+    {
+      "id": "ENT-013",
+      "name": "nuclear sites",
+      "type": "location"
+    },
+    {
+      "id": "ENT-014",
+      "name": "United States",
+      "type": "location"
+    },
+    {
+      "id": "ENT-015",
+      "name": "Arrow",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-016",
+      "name": "inspector general",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-017",
+      "name": "triangle sighting",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-018",
+      "name": "special access program",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-019",
+      "name": "Tim Phillips",
+      "type": "named_person"
+    },
+    {
+      "id": "ENT-020",
+      "name": "triangles",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-021",
+      "name": "2024",
+      "type": "date_time"
+    },
+    {
+      "id": "ENT-022",
+      "name": "JWICS",
+      "type": "object"
+    },
+    {
+      "id": "ENT-023",
+      "name": "NSA",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-024",
+      "name": "document database",
+      "type": "object"
+    },
+    {
+      "id": "ENT-025",
+      "name": "George Knapp",
+      "type": "named_person"
+    },
+    {
+      "id": "ENT-026",
+      "name": "Congress",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-027",
+      "name": "Lockheed Martin",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-028",
+      "name": "Bigelow",
+      "type": "named_person"
+    },
+    {
+      "id": "ENT-029",
+      "name": "Glenn Gaffney",
+      "type": "named_person"
+    },
+    {
+      "id": "ENT-030",
+      "name": "CIA",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-031",
+      "name": "Robert Bigelow",
+      "type": "named_person"
+    },
+    {
+      "id": "ENT-032",
+      "name": "Bass",
+      "type": "organization"
+    },
+    {
+      "id": "ENT-033",
+      "name": "unusual material",
+      "type": "uap_item"
+    },
+    {
+      "id": "ENT-034",
+      "name": "a facility in California",
+      "type": "location"
+    },
+    {
+      "id": "ENT-035",
+      "name": "2012",
+      "type": "date_time"
+    }
+  ],
+  "claims": [
+    {
+      "id": "CLM-01",
+      "text": "Dylan Borland was a 1N1 geospatial intelligence specialist for the United States Air Force.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 188.36,
+      "t_end": 198.67999999999998,
+      "quote": "on C-SPAN your testimony. My name is Dylan Borland, a former 1N1 geospatial intelligence specialist for the United States Air Force. During the summer of 2012, my team was on standby for",
+      "entity_ids": [
+        "ENT-001"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-02",
+      "text": "In the summer of 2012, at about 1:30, he saw an approximately 100-foot equilateral triangle take off from near the NASA hangar on the base.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 194.26,
+      "t_end": 208.98,
+      "quote": "specialist for the United States Air Force. During the summer of 2012, my team was on standby for weather and I returned to my barracks on base. And at approximately 0130, I saw an approximately 100 foot equilateral triangle take off from near the NASA hangar on the base.",
+      "entity_ids": [
+        "ENT-002",
+        "ENT-003",
+        "ENT-004",
+        "ENT-005"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-03",
+      "text": "He drove across the base from Langley, past a NASA hangar and a runway, back to his barracks.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1600.56,
+      "t_end": 1607.78,
+      "quote": "around um drive across the base from Langley pass a NASA hangar pass a runway go back to my barracks",
+      "entity_ids": [
+        "ENT-006",
+        "ENT-004"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-04",
+      "text": "A light popped up from the NASA hangar, flew toward him across the base, and a triangle manifested around it.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1720.8000000000002,
+      "t_end": 1734.16,
+      "quote": "And as I'm walking up, the light that I see popped up from the NASA hangar. And the light starts to fly to me across the base. and as it flies to me, a triangle manifests around it.",
+      "entity_ids": [
+        "ENT-004",
+        "ENT-007"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-05",
+      "text": "He cannot tell whether the object used active camouflage, whether the triangle manifested, or whether the light made a wormhole.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1741.88,
+      "t_end": 1750.0600000000002,
+      "quote": "I can't tell you if it's active camouflage. I cannot tell you if it manifested around it. I can't tell you if the light created some crazy wormhole.",
+      "entity_ids": [
+        "ENT-007"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-06",
+      "text": "What he will assert is that a white light became a triangle and flew to him.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1750.96,
+      "t_end": 1755.48,
+      "quote": "What I know is it was a white light that became a triangle, flew to me.",
+      "entity_ids": [
+        "ENT-008",
+        "ENT-007"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-07",
+      "text": "In the classified MFR he described a 100-to-150-foot equilateral triangle with a light on each corner and a larger center light.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1797.1799999999998,
+      "t_end": 1810.52,
+      "quote": "was classified i described it between 100 and 150 foot equilateral triangle there were lights on each corner there was a center light two to three times larger in the center uh it's black metallic flake",
+      "entity_ids": [
+        "ENT-005",
+        "ENT-009"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-08",
+      "text": "The craft had a black metallic flake surface.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1804.02,
+      "t_end": 1810.52,
+      "quote": "corner there was a center light two to three times larger in the center uh it's black metallic flake",
+      "entity_ids": [
+        "ENT-010"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-09",
+      "text": "A gold transparent flow moved around the craft, and the craft stayed for about two or three minutes.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1840.46,
+      "t_end": 1876.72,
+      "quote": "the big one was the outside pulsated move like a lava lamp it had like this goldish transparent flow around it where the whole craft was i don't want to call it moving but it was moving it's like take a lava lamp put it on black metallic flake paint and have the lava lamp flow around it um and it was just sitting there pulsate like i i could see the intensity on this gold on this craft pulsating as it flowed around the craft is there for like two three minutes or",
+      "entity_ids": [
+        "ENT-010"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-10",
+      "text": "Under oath he said the object went from about 100 feet to at least 30,000 feet in two to three seconds.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1991.14,
+      "t_end": 2002.58,
+      "quote": "I have testified to this under oath within seconds between 100 feet off the ground approximately to at minimum 30,000 commercial jet elevation, two to three seconds.",
+      "entity_ids": [
+        "ENT-011"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-11",
+      "text": "He has not calculated that speed himself.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 2015.52,
+      "t_end": 2015.96,
+      "quote": "No, I have not.",
+      "entity_ids": [],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-12",
+      "text": "He is sure there are craft that were not made by humanity.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 59.28,
+      "t_end": 62.34,
+      "quote": "I am sure there are crafts that were not made by humanity",
+      "entity_ids": [
+        "ENT-010"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-13",
+      "text": "He says the objects track aircraft carriers and nuclear sites, and that this is not only a United States matter.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5250.28,
+      "t_end": 5256.4,
+      "quote": "things, knowing their tracking, aircraft carriers, nuclear sites, it's not just the US, it's everybody.",
+      "entity_ids": [
+        "ENT-012",
+        "ENT-013",
+        "ENT-014"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-14",
+      "text": "He says he knows that these craft exist.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5293.68,
+      "t_end": 5303.34,
+      "quote": "but of course I have a concern with it because I know this subject is true. I know these craft exists. I know this is happening. I know what they did to me. In the last year, they falsified",
+      "entity_ids": [
+        "ENT-010"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-15",
+      "text": "When he went to Arrow and the inspector general as a whistleblower, they confirmed that his account was true.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5764.46,
+      "t_end": 5769.84,
+      "quote": "I'm positive because the problem is when I became a whistleblower, went to Arrow and the IG, they confirmed it was true.",
+      "entity_ids": [
+        "ENT-015",
+        "ENT-016"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-16",
+      "text": "His triangle sighting was listed as unclassified on the memorandum for record.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5773.46,
+      "t_end": 5782.0599999999995,
+      "quote": "Because they wrote my memorandum for record. It's called an MFR. And what my triangle sighting was listed as unclassified.",
+      "entity_ids": [
+        "ENT-017",
+        "ENT-009"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-17",
+      "text": "He says the other material was placed in a special access program.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5782.06,
+      "t_end": 5786.76,
+      "quote": "everything else they immediately threw into a special access program and this goes back to",
+      "entity_ids": [
+        "ENT-018"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-18",
+      "text": "He says Tim Phillips said that triangles are real.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 5790.84,
+      "t_end": 5796.34,
+      "quote": "is publicly available tim phillips himself said triangles are real they want to know where they're",
+      "entity_ids": [
+        "ENT-019",
+        "ENT-020"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-19",
+      "text": "In 2024 he had a large database of documents and briefings on JWICS, and the NSA came and removed it.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 4705.8,
+      "t_end": 4722.4,
+      "quote": "I'm gonna tiptoe this so I told you that in 2024 I had a large database saved of documents briefings private messages on classified on j wicks um and nsa came through and cleaned house and they",
+      "entity_ids": [
+        "ENT-021",
+        "ENT-022",
+        "ENT-023",
+        "ENT-024"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-20",
+      "text": "He says George Knapp, under oath before Congress, said Lockheed Martin had a craft it was going to sell to Bigelow, and that Glenn Gaffney of the CIA stepped in.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 8897.84,
+      "t_end": 8916.44,
+      "quote": "and financials. They're doing it. It's happening. So I brought this up. George Knapp, under oath, in front of Congress, which can be used as evidence with the Securities Exchange Commission, literally said, Lockheed Martin had a craft, they were going to sell it to Bigelow, and Glenn Gaffney with the CIA stepped in.",
+      "entity_ids": [
+        "ENT-025",
+        "ENT-026",
+        "ENT-027",
+        "ENT-010",
+        "ENT-028",
+        "ENT-029",
+        "ENT-030"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-21",
+      "text": "The played speaker says Bigelow's company, Bass, was to receive unusual material from Lockheed Martin that had been kept in California, and that the material was not made here.",
+      "claimant_id": "PER-PLAYED",
+      "speaker_label": "SPEAKER_04",
+      "t_start": 8916.44,
+      "t_end": 8938.6,
+      "quote": "I have confirmed on the record that Robert Bigelow and a trusted colleague from OSAP met with and negotiated with senior executives at Lockheed Martin and hammered out a deal wherein Bigelow's company, Bass, would receive a quantity of unusual material that had been stashed away and protected at a facility in California. That material was not made here.",
+      "entity_ids": [
+        "ENT-031",
+        "ENT-032",
+        "ENT-027",
+        "ENT-033",
+        "ENT-034"
+      ],
+      "lifecycle": "proposed"
+    },
+    {
+      "id": "CLM-22",
+      "text": "In 2012 he tried to take a picture of the object.",
+      "claimant_id": "PER-BORLAND",
+      "speaker_label": "SPEAKER_09",
+      "t_start": 1934.52,
+      "t_end": 1938.02,
+      "quote": "I remember I was trying to take a picture of it and this is 2012.",
+      "entity_ids": [
+        "ENT-035",
+        "ENT-011"
+      ],
+      "lifecycle": "proposed"
+    }
+  ],
+  "links": [
+    {
+      "source": "CLM-04",
+      "target": "CLM-02",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-05",
+      "target": "CLM-04",
+      "kind": "contradicts"
+    },
+    {
+      "source": "CLM-06",
+      "target": "CLM-04",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-07",
+      "target": "CLM-02",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-08",
+      "target": "CLM-07",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-09",
+      "target": "CLM-08",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-10",
+      "target": "CLM-04",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-14",
+      "target": "CLM-12",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-16",
+      "target": "CLM-15",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-17",
+      "target": "CLM-16",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-18",
+      "target": "CLM-07",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-21",
+      "target": "CLM-20",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-21",
+      "target": "CLM-12",
+      "kind": "elaborates"
+    },
+    {
+      "source": "CLM-03",
+      "target": "CLM-02",
+      "kind": "elaborates"
+    }
+  ]
+}
