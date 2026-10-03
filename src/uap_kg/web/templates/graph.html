@@ -1,26 +1,63 @@
 {% extends "base.html" %}
 {% block title %}Knowledge Graph{% endblock %}
 {% block main %}
-<header class="flex justify-between items-center w-full px-margin-desktop h-16 bg-surface/95 backdrop-blur-md border-b border-outline-variant/20 shrink-0">
-  <div class="flex items-center gap-4">
-    <img alt="" class="w-8 h-8 rounded object-cover border border-outline-variant/30" src="/static/img/insignia-cyan.jpg"/>
-    <h2 class="font-headline-sm text-headline-sm">Knowledge Graph</h2>
-    <span id="g-focus" class="font-mono-data text-mono-data text-primary">ENTITY: —</span>
+<style>
+  main { height: 100vh; max-height: 100vh; overflow: hidden; }
+  @media (max-width: 1023px) {
+    main { height: auto; max-height: none; overflow: auto; }
+    #graph-stage { height: 62vh; min-height: 320px; flex: none; }
+  }
+</style>
+<header class="flex flex-wrap justify-between items-center gap-3 w-full px-4 md:px-8 h-auto min-h-16 py-3 bg-surface/95 backdrop-blur-md border-b border-outline-variant/20 shrink-0">
+  <div>
+    <div class="font-label-caps text-label-caps text-primary">Knowledge graph</div>
+    <h2 id="graph-title" class="font-headline-sm text-headline-sm">Cases</h2>
   </div>
-  <div class="flex items-center gap-3">
-    <input id="g-search" class="bg-surface-container border border-outline-variant/30 text-on-surface font-mono-data text-mono-data rounded pl-3 pr-4 py-1.5 w-64" placeholder="Query node…"/>
-    <img alt="Curator" class="w-8 h-8 rounded-full object-cover border border-outline-variant/30" src="/static/img/avatar-archivist.jpg"/>
-  </div>
+  <p class="font-body-sm text-body-sm text-on-surface-variant max-w-xl">The same name and type is one node, including when several interviews use it. A cyan link means those items were named in the same moment. Different spellings stay apart.</p>
 </header>
-<div class="flex-1 relative overflow-hidden flex">
-  <svg class="absolute inset-0 w-full h-full z-0 pointer-events-none" id="g-svg"></svg>
-  <div id="g-canvas" class="relative flex-1 overflow-auto p-10 z-10"></div>
-  <aside id="g-inspect" class="w-80 border-l ghost-border bg-surface-container-lowest p-5 overflow-y-auto hidden md:block">
+<div class="flex flex-wrap gap-2 px-4 md:px-8 py-3 border-b border-outline-variant/20">
+  <div id="graph-cases" class="flex flex-wrap gap-2"></div>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-primary text-primary" data-type="all">All</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="claim">Claims</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="named_person">Named person</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="uap_item">UAP item</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="location">Location</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="date_time">Date and time</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="organization">Organization</button>
+  <button type="button" class="graph-filter font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant" data-type="object">Object</button>
+  <input id="graph-search" class="ml-auto bg-surface-container border border-outline-variant/30 text-on-surface font-mono-data text-mono-data rounded px-3 py-1 w-full sm:w-56" placeholder="Find a claim or entity"/>
+  <button id="graph-fit" type="button" class="font-label-caps text-label-caps px-3 py-1 border border-outline-variant/40 text-on-surface-variant">Fit</button>
+</div>
+<div class="flex-1 flex flex-col lg:flex-row min-h-0">
+  <div id="graph-stage" class="flex-1 relative min-h-0 bg-surface-container-lowest">
+    <div id="graph-cy" class="absolute inset-0" style="background:#010f1f"></div>
+    <p id="graph-status" class="absolute left-3 top-3 font-mono-data text-[11px] text-on-surface-variant pointer-events-none bg-surface/80 border border-outline-variant/30 px-2 py-1"></p>
+    <div id="graph-legend" class="absolute left-3 bottom-3 right-3 sm:right-auto flex flex-wrap gap-x-3 gap-y-1 max-w-xl bg-surface/80 border border-outline-variant/30 px-3 py-2 font-mono-data text-[11px] text-on-surface-variant pointer-events-none">
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#00E5FF"></i>Person</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FFE14A"></i>Claim</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF3B5C"></i>UAP item</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#3DFF8A"></i>Location</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF7A1A"></i>Organization</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#FF3EC8"></i>Named person</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#4F86FF"></i>Object</span>
+      <span><i class="inline-block w-2 h-2 rounded-full mr-1" style="background:#E2B0FF"></i>Date</span>
+      <span><i class="inline-block w-6 h-0.5 mr-1 align-middle" style="background:#00E5FF"></i>Same moment</span>
+    </div>
+  </div>
+  <aside id="graph-inspect" class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-outline-variant/20 bg-surface-container p-5 overflow-y-auto max-h-[46vh] lg:max-h-none">
     <div class="font-label-caps text-label-caps text-on-surface-variant mb-2">Inspector</div>
-    <div id="g-inspect-body" class="font-body-sm text-body-sm text-on-surface-variant">Select a node.</div>
+    <div id="graph-inspect-body" class="font-body-sm text-body-sm text-on-surface-variant">Select a claim or an entity. Drag to orbit. Scroll to zoom.</div>
   </aside>
 </div>
 {% endblock %}
 {% block scripts %}
-<script>Aetheris.pageGraph();</script>
+<script type="importmap">
+{
+  "imports": {
+    "3d-force-graph": "https://esm.sh/3d-force-graph@1.77.1",
+    "three-spritetext": "https://esm.sh/three-spritetext@1.9.6"
+  }
+}
+</script>
+<script type="module" src="/static/js/graph-3d.js?v=20261003h"></script>
 {% endblock %}

@@ -13,6 +13,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, Field
 
 from . import store
+from .case_graph import graph_payload
 
 HERE = Path(__file__).resolve().parent
 # Python 3.14 + Jinja default cache can choke on unhashable cache keys.
@@ -61,6 +62,11 @@ def compare(request: Request, event: str | None = "EVT-89-014"):
 @app.get("/graph", response_class=HTMLResponse)
 def graph(request: Request):
     return _page(request, "graph.html", "graph")
+
+
+@app.get("/api/graph")
+def api_graph():
+    return graph_payload()
 
 
 @app.get("/catalog", response_class=HTMLResponse)
