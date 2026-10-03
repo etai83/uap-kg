@@ -1,6 +1,6 @@
 /* Cross-case graph as 3D text nodes, same ForceGraph3D setup as case-3d. */
 const TYPE_LABEL = {
-  named_person: "Named person",
+  named_person: "Persons",
   object: "Object",
   uap_item: "UAP item",
   location: "Location",

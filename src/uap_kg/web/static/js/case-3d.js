@@ -1,6 +1,6 @@
 /* Borland case as a 3D text-node graph, the same pattern as react-force-graph's text-nodes example. */
 const TYPE_LABEL = {
-  named_person: "Named person",
+  named_person: "Persons",
   object: "Object",
   uap_item: "UAP item",
   location: "Location",

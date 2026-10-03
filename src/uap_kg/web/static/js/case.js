@@ -1,7 +1,7 @@
 /* Borland case test — claims, claimant, entities. */
 (function () {
   const TYPE_LABEL = {
-    named_person: "Named person",
+    named_person: "Persons",
     object: "Object",
     uap_item: "UAP item",
     location: "Location",
