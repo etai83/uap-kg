@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, Field
 
 from . import store
-from .case_graph import graph_payload
+from .case_graph import graph_payload, mark_same, restore_log, revert_log
 
 HERE = Path(__file__).resolve().parent
 # Python 3.14 + Jinja default cache can choke on unhashable cache keys.
@@ -64,9 +64,44 @@ def graph(request: Request):
     return _page(request, "graph.html", "graph")
 
 
+class SameBody(BaseModel):
+    keep: str
+    replace: str
+
+
+class RevertBody(BaseModel):
+    index: int
+
+
 @app.get("/api/graph")
 def api_graph():
     return graph_payload()
+
+
+@app.post("/api/graph/same")
+def api_graph_same(body: SameBody):
+    try:
+        return mark_same(body.keep, body.replace)
+    except KeyError:
+        raise HTTPException(404, "One of those nodes is not in the graph.")
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.post("/api/graph/revert")
+def api_graph_revert(body: RevertBody):
+    try:
+        return revert_log(body.index)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.post("/api/graph/restore")
+def api_graph_restore():
+    try:
+        return restore_log()
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/catalog", response_class=HTMLResponse)

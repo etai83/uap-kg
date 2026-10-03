@@ -7,13 +7,16 @@ Arrow and AARO stay apart because their names differ.
 
 from __future__ import annotations
 
+import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from uap_kg.extract.claim_entities import norm
 
 WEB = Path(__file__).resolve().parent
 REPO = WEB.parents[2]
+ALIAS_PATH = WEB / "data" / "node_same.json"
 
 CASES = (
     {
@@ -134,7 +137,7 @@ def _co_mention_links(prefix: str, entities: list[dict]) -> list[dict]:
     return links
 
 
-def graph_payload(repo: Path | None = None) -> dict:
+def graph_payload(repo: Path | None = None, alias_path: Path | None = None) -> dict:
     root = repo or REPO
     titles = _catalog_titles(root)
     cases = []
@@ -184,6 +187,7 @@ def graph_payload(repo: Path | None = None) -> dict:
                     "tEnd": None,
                     "videoId": spec["video_id"],
                     "val": 4,
+                    "members": [f"{prefix}:{person['id']}"],
                 }
             )
         names = {person["id"]: person.get("name") or "" for person in persons}
@@ -205,6 +209,7 @@ def graph_payload(repo: Path | None = None) -> dict:
                     "tEnd": claim.get("t_end"),
                     "videoId": spec["video_id"],
                     "val": 1.4,
+                    "members": [node_id],
                 }
             )
             claimant = claim.get("claimant_id")
@@ -256,12 +261,32 @@ def graph_payload(repo: Path | None = None) -> dict:
                     "tEnd": None,
                     "videoId": spec["video_id"],
                     "val": 1,
+                    "members": [node_id],
                 }
             )
         links.extend(_co_mention_links(prefix, entities))
 
     nodes, links = _join_same_names(nodes, links)
-    return {"cases": cases, "nodes": nodes, "links": links}
+    path = alias_path or ALIAS_PATH
+    state = _load_state(path)
+    if state["groups"] and not state["log"]:
+        state["log"] = _legacy_entries(nodes, state["groups"])
+        saved_at = ""
+        if path.is_file():
+            saved_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).replace(microsecond=0).isoformat()
+        for entry in state["log"]:
+            entry["at"] = saved_at
+        state["groups"] = []
+        if state["log"]:
+            _save_state(path, state)
+    nodes, links = _apply_log(nodes, links, state["log"])
+    return {
+        "cases": cases,
+        "nodes": nodes,
+        "links": links,
+        "log": [_public_entry(index, entry) for index, entry in enumerate(state["log"], start=1)],
+        "undo": [_public_entry(index, entry) for index, entry in enumerate(state["undo"][-1] if state["undo"] else [], start=1)],
+    }
 
 
 def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -289,6 +314,7 @@ def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], 
         )
         case_ids: list[str] = []
         shorts: list[str] = []
+        folded: list[str] = []
         for member in members:
             alias[member["id"]] = new_id
             if member is not best:
@@ -296,7 +322,11 @@ def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], 
             if member.get("caseId") and member["caseId"] not in case_ids:
                 case_ids.append(member["caseId"])
                 shorts.append(member.get("caseShort") or member["caseId"])
+            for item in member.get("members") or [member["id"]]:
+                if item not in folded:
+                    folded.append(item)
         best["id"] = new_id
+        best["members"] = folded
         best["label"] = clip(best.get("full") or "", 42)
         best["caseIds"] = case_ids
         best["caseShort"] = " · ".join(shorts)
@@ -335,3 +365,283 @@ def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], 
         if link["source"] in node_ids and link["target"] in node_ids
     ]
     return kept, kept_links
+
+
+def _digest(members: list[str]) -> str:
+    text = "\n".join(sorted(members))
+    return hashlib.sha256(text.encode()).hexdigest()[:12]
+
+
+def _public_entry(index: int, entry: dict) -> dict:
+    return {
+        "index": index,
+        "at": entry.get("at") or "",
+        "keepLabel": entry.get("keep_label") or "",
+        "replaceLabel": entry.get("replace_label") or "",
+    }
+
+
+def _blank_state() -> dict:
+    return {"log": [], "undo": [], "groups": []}
+
+
+def _entry_members(entry: dict) -> list[str]:
+    values = []
+    for key in ("keep_members", "replace_members"):
+        for item in entry.get(key) or []:
+            if isinstance(item, str) and item and item not in values:
+                values.append(item)
+    return values
+
+
+def _clean_entry(entry: dict) -> dict | None:
+    if not isinstance(entry, dict):
+        return None
+    keep = [item for item in entry.get("keep_members") or [] if isinstance(item, str) and item]
+    replace = [item for item in entry.get("replace_members") or [] if isinstance(item, str) and item]
+    if not keep or not replace:
+        return None
+    return {
+        "at": entry.get("at") or "",
+        "keep_label": entry.get("keep_label") or "",
+        "keep_type": entry.get("keep_type") or "",
+        "keep_members": keep,
+        "replace_label": entry.get("replace_label") or "",
+        "replace_members": replace,
+    }
+
+
+def _load_state(path: Path) -> dict:
+    if not path.is_file():
+        return _blank_state()
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return _blank_state()
+    if not isinstance(payload, dict):
+        return _blank_state()
+    log = [item for item in (_clean_entry(entry) for entry in payload.get("log") or []) if item]
+    undo = []
+    for batch in payload.get("undo") or []:
+        if not isinstance(batch, list):
+            continue
+        cleaned = [item for item in (_clean_entry(entry) for entry in batch) if item]
+        if cleaned:
+            undo.append(cleaned)
+    groups = []
+    for group in payload.get("groups") or []:
+        if not isinstance(group, list):
+            continue
+        ids = [item for item in group if isinstance(item, str) and item]
+        if len(ids) >= 2:
+            groups.append(ids)
+    return {"log": log, "undo": undo, "groups": groups}
+
+
+def _save_state(path: Path, state: dict) -> None:
+    if not state["log"] and not state["undo"]:
+        if path.is_file():
+            path.unlink()
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"log": state["log"], "undo": state["undo"]}, indent=2) + "\n")
+
+
+def _case_pairs(node: dict) -> list[tuple[str, str]]:
+    case_ids = node.get("caseIds") or []
+    parts = [part for part in (node.get("caseShort") or "").split(" · ") if part]
+    if len(parts) == len(case_ids):
+        return list(zip(case_ids, parts))
+    return [(case_id, case_id) for case_id in case_ids]
+
+
+def _name_rank(node: dict) -> tuple[int, int]:
+    full = node.get("full") or ""
+    return (sum(char.isupper() for char in full), len(full))
+
+
+def _legacy_entries(nodes: list[dict], groups: list[list[str]]) -> list[dict]:
+    """Turn an older group file into log entries. The kept name is the one already shown."""
+    by_member: dict[str, dict] = {}
+    for node in nodes:
+        for member in node.get("members") or [node["id"]]:
+            by_member[member] = node
+    entries = []
+    for group in groups:
+        found: list[dict] = []
+        seen: set[str] = set()
+        for member in group:
+            node = by_member.get(member)
+            if node is None or node["id"] in seen:
+                continue
+            seen.add(node["id"])
+            found.append(node)
+        if len(found) < 2:
+            continue
+        keep = max(found, key=_name_rank)
+        replace_members: list[str] = []
+        replace_names: list[str] = []
+        for node in found:
+            if node is keep:
+                continue
+            if node.get("full"):
+                replace_names.append(node["full"])
+            for member in node.get("members") or [node["id"]]:
+                if member not in replace_members:
+                    replace_members.append(member)
+        if not replace_members:
+            continue
+        entries.append(
+            {
+                "at": "",
+                "keep_label": keep.get("full") or "",
+                "keep_type": keep.get("entityType") or "",
+                "keep_members": list(keep.get("members") or [keep["id"]]),
+                "replace_label": " · ".join(replace_names),
+                "replace_members": replace_members,
+            }
+        )
+    return entries
+
+
+def _apply_log(nodes: list[dict], links: list[dict], entries: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Replay saved joins. The kept node stays. The other node's links move onto it."""
+    if not entries:
+        return nodes, links
+    alias: dict[str, str] = {}
+    drop: set[str] = set()
+    for entry in entries:
+        keep_members = set(entry.get("keep_members") or [])
+        replace_members = set(entry.get("replace_members") or [])
+        wanted = keep_members | replace_members
+        matching = [
+            node
+            for node in nodes
+            if node["id"] not in drop and wanted.intersection(node.get("members") or [node["id"]])
+        ]
+        if len(matching) < 2:
+            continue
+        survivor = max(matching, key=lambda node: len(keep_members.intersection(node.get("members") or [])))
+        folded: list[str] = []
+        case_ids: list[str] = []
+        shorts: list[str] = []
+        names: list[str] = []
+        for node in matching:
+            for item in node.get("members") or [node["id"]]:
+                if item not in folded:
+                    folded.append(item)
+            for case_id, short in _case_pairs(node):
+                if case_id not in case_ids:
+                    case_ids.append(case_id)
+                    shorts.append(short)
+            if node.get("full") and node["full"] not in names:
+                names.append(node["full"])
+            for alias_name in node.get("also") or []:
+                if alias_name and alias_name not in names:
+                    names.append(alias_name)
+        new_id = "same:" + _digest(folded)
+        old_ids = [node["id"] for node in matching]
+        for node in matching:
+            if node is not survivor:
+                drop.add(node["id"])
+        for old_id, target in list(alias.items()):
+            if target in old_ids:
+                alias[old_id] = new_id
+        for old_id in old_ids:
+            alias[old_id] = new_id
+        keep_label = entry.get("keep_label") or survivor.get("full") or ""
+        survivor["id"] = new_id
+        survivor["members"] = folded
+        survivor["full"] = keep_label
+        survivor["label"] = clip(keep_label, 42)
+        survivor["caseIds"] = case_ids
+        survivor["caseShort"] = " · ".join(shorts)
+        survivor["curator"] = True
+        survivor["also"] = [name for name in names if name and name != keep_label]
+        survivor["val"] = max(survivor.get("val") or 1, 1 + 0.8 * max(0, len(case_ids) - 1))
+        if entry.get("keep_type"):
+            survivor["entityType"] = entry["keep_type"]
+        if any(node.get("kind") == "entity" for node in matching):
+            survivor["kind"] = "entity"
+        survivor["quote"] = survivor.get("quote") or ""
+    kept = [node for node in nodes if node["id"] not in drop]
+    return kept, _collapse_links(links, alias, {node["id"] for node in kept})
+
+
+def _collapse_links(links: list[dict], alias: dict[str, str], node_ids: set[str]) -> list[dict]:
+    combined: dict[tuple, dict] = {}
+    order: list[tuple] = []
+    for link in links:
+        source = alias.get(link["source"], link["source"])
+        target = alias.get(link["target"], link["target"])
+        if not source or not target or source == target:
+            continue
+        kind = link.get("kind") or "about"
+        left, right = (source, target)
+        if kind == "co_mention" and left > right:
+            left, right = right, left
+        mark = (left, right, kind)
+        if mark not in combined:
+            combined[mark] = {"source": left, "target": right, "kind": kind, "caseIds": []}
+            order.append(mark)
+        for case_id in list(link.get("caseIds") or []) + ([link["caseId"]] if link.get("caseId") else []):
+            if case_id and case_id not in combined[mark]["caseIds"]:
+                combined[mark]["caseIds"].append(case_id)
+    return [
+        link
+        for link in (combined[mark] for mark in order)
+        if link["source"] in node_ids and link["target"] in node_ids
+    ]
+
+
+def mark_same(keep_id: str, replace_id: str, alias_path: Path | None = None) -> dict:
+    path = alias_path or ALIAS_PATH
+    payload = graph_payload(alias_path=path)
+    by_id = {node["id"]: node for node in payload["nodes"]}
+    if keep_id not in by_id or replace_id not in by_id:
+        raise KeyError(keep_id if keep_id not in by_id else replace_id)
+    if keep_id == replace_id:
+        raise ValueError("Choose two different nodes.")
+    keep = by_id[keep_id]
+    replace = by_id[replace_id]
+    if keep.get("kind") == "claim" or replace.get("kind") == "claim":
+        raise ValueError("A claim stays a claim. Join entities or people.")
+    state = _load_state(path)
+    state["log"].append(
+        {
+            "at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            "keep_label": keep.get("full") or keep.get("label") or "",
+            "keep_type": keep.get("entityType") or "",
+            "keep_members": list(keep.get("members") or [keep_id]),
+            "replace_label": replace.get("full") or replace.get("label") or "",
+            "replace_members": list(replace.get("members") or [replace_id]),
+        }
+    )
+    state["undo"] = []
+    _save_state(path, state)
+    return graph_payload(alias_path=path)
+
+
+def revert_log(index: int, alias_path: Path | None = None) -> dict:
+    """Keep the first `index` joins. Later joins stay in the undo stack."""
+    path = alias_path or ALIAS_PATH
+    state = _load_state(path)
+    if index < 0 or index > len(state["log"]):
+        raise ValueError("That version is not in the log.")
+    removed = state["log"][index:]
+    state["log"] = state["log"][:index]
+    if removed:
+        state["undo"].append(removed)
+    _save_state(path, state)
+    return graph_payload(alias_path=path)
+
+
+def restore_log(alias_path: Path | None = None) -> dict:
+    """Put back the joins removed by the latest revert."""
+    path = alias_path or ALIAS_PATH
+    state = _load_state(path)
+    if not state["undo"]:
+        raise ValueError("There is no newer version to restore.")
+    state["log"].extend(state["undo"].pop())
+    _save_state(path, state)
+    return graph_payload(alias_path=path)

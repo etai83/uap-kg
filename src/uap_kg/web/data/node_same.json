@@ -1,0 +1,190 @@
+{
+  "log": [
+    {
+      "at": "2026-10-03T15:47:24+00:00",
+      "keep_label": "man named John Lear",
+      "keep_type": "named_person",
+      "keep_members": [
+        "corbell:ENT-092"
+      ],
+      "replace_label": "John Lear \u00b7 john \u00b7 Lear",
+      "replace_members": [
+        "grusch:ENT-355",
+        "corbell:ENT-091",
+        "corbell:ENT-116",
+        "grusch:ENT-358",
+        "corbell:ENT-117"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:38:23+00:00",
+      "keep_label": "George Knapp",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-197",
+        "corbell:ENT-022"
+      ],
+      "replace_label": "george knapp won't",
+      "replace_members": [
+        "corbell:ENT-140"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:38:37+00:00",
+      "keep_label": "George Knapp",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-197",
+        "corbell:ENT-022",
+        "corbell:ENT-140"
+      ],
+      "replace_label": "George Knapp's voice",
+      "replace_members": [
+        "corbell:ENT-096"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:41:10+00:00",
+      "keep_label": "Matthew Sullivan",
+      "keep_type": "named_person",
+      "keep_members": [
+        "corbell:ENT-011"
+      ],
+      "replace_label": "Matthew",
+      "replace_members": [
+        "corbell:ENT-026"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:41:27+00:00",
+      "keep_label": "Matthew Sullivan",
+      "keep_type": "named_person",
+      "keep_members": [
+        "corbell:ENT-011",
+        "corbell:ENT-026"
+      ],
+      "replace_label": "Sullivan",
+      "replace_members": [
+        "borland:ENT-240",
+        "corbell:ENT-340"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:41:48+00:00",
+      "keep_label": "Matthew Sullivan",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-240",
+        "corbell:ENT-340",
+        "corbell:ENT-011",
+        "corbell:ENT-026"
+      ],
+      "replace_label": "ICIG Matthew Sullivan",
+      "replace_members": [
+        "corbell:ENT-341"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:42:51+00:00",
+      "keep_label": "Lou Elizondo",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-253",
+        "corbell:ENT-366"
+      ],
+      "replace_label": "Lou",
+      "replace_members": [
+        "borland:ENT-255"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:43:00+00:00",
+      "keep_label": "Lou Elizondo",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-255",
+        "borland:ENT-253",
+        "corbell:ENT-366"
+      ],
+      "replace_label": "Lou Elizondo interview",
+      "replace_members": [
+        "borland:ENT-305"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:50:08+00:00",
+      "keep_label": "Jay Stratton",
+      "keep_type": "named_person",
+      "keep_members": [
+        "corbell:ENT-365"
+      ],
+      "replace_label": "Stratton",
+      "replace_members": [
+        "borland:ENT-307"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:51:16+00:00",
+      "keep_label": "David Grush",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-123",
+        "grusch:ENT-001",
+        "corbell:ENT-360"
+      ],
+      "replace_label": "David Gresh",
+      "replace_members": [
+        "corbell:ENT-052"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:51:22+00:00",
+      "keep_label": "David Grush",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-123",
+        "grusch:ENT-001",
+        "corbell:ENT-360",
+        "corbell:ENT-052"
+      ],
+      "replace_label": "knew David Grush",
+      "replace_members": [
+        "corbell:ENT-048"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:51:27+00:00",
+      "keep_label": "David Grush",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-123",
+        "grusch:ENT-001",
+        "corbell:ENT-360",
+        "corbell:ENT-052",
+        "corbell:ENT-048"
+      ],
+      "replace_label": "Grush",
+      "replace_members": [
+        "grusch:ENT-007"
+      ]
+    },
+    {
+      "at": "2026-10-03T17:51:35+00:00",
+      "keep_label": "David Grush",
+      "keep_type": "named_person",
+      "keep_members": [
+        "borland:ENT-123",
+        "grusch:ENT-001",
+        "corbell:ENT-360",
+        "corbell:ENT-052",
+        "corbell:ENT-048",
+        "grusch:ENT-007"
+      ],
+      "replace_label": "David",
+      "replace_members": [
+        "corbell:ENT-038"
+      ]
+    }
+  ],
+  "undo": []
+}
