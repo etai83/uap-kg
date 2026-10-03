@@ -13,6 +13,7 @@ __pycache__/
 data/audio/
 data/transcripts/
 data/ui_store.json
+data/jev_cache/
 *.wav
 *.webm
 *.m4a

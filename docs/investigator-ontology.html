@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investigator ontology. Draft in ASD-STE100.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #051424;
+      --bg-low: #0d1c2d;
+      --bg-mid: #122131;
+      --bg-high: #1c2b3c;
+      --bg-highest: #273647;
+      --ink: #d4e4fa;
+      --muted: #bac9cc;
+      --faint: #849396;
+      --line: rgba(132, 147, 150, 0.22);
+      --cyan: #00daf3;
+      --cyan-dim: rgba(0, 218, 243, 0.14);
+      --ice: #c3f5ff;
+      --warn: #ffb4ab;
+      --serif: "IBM Plex Serif", Georgia, serif;
+      --sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 28px 80px;
+    }
+
+    header.top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+      margin-bottom: 36px;
+    }
+    .mark {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ice);
+    }
+    .status {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--faint);
+    }
+
+    h1 {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 40px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+    }
+    .lede {
+      max-width: 68ch;
+      color: var(--muted);
+      margin: 0 0 36px;
+    }
+
+    h2 {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin: 48px 0 16px;
+    }
+
+    .objects {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    article.obj {
+      background: var(--bg-mid);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--cyan);
+      padding: 18px 18px 16px;
+      min-height: 100%;
+    }
+    article.obj h3 {
+      font-family: var(--sans);
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 8px;
+    }
+    article.obj p { margin: 0 0 10px; }
+    article.obj p:last-child { margin-bottom: 0; }
+    .kind {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+    .not {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    ol.path {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-left: 1px solid var(--line);
+    }
+    ol.path li {
+      position: relative;
+      padding: 0 0 22px 28px;
+    }
+    ol.path li:last-child { padding-bottom: 0; }
+    ol.path li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: -11px;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--cyan);
+      color: var(--ice);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 20px;
+      text-align: center;
+    }
+    ol.path strong {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 16px;
+    }
+    ol.path p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+    .side {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      background: var(--bg-low);
+      color: var(--ice);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .rules {
+      display: grid;
+      gap: 10px;
+    }
+    .rule {
+      background: var(--bg-low);
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+    }
+    .rule b {
+      display: block;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--warn);
+      margin-bottom: 4px;
+    }
+    .rule p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-family: var(--sans);
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 600;
+    }
+    td.mono, code {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ice);
+    }
+    code {
+      background: var(--cyan-dim);
+      padding: 1px 5px;
+    }
+
+    .spine {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .chip {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 6px 10px;
+      background: var(--bg-high);
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .chip.off {
+      border-style: dashed;
+      color: var(--cyan);
+      background: transparent;
+    }
+    .arrow {
+      color: var(--faint);
+      font-family: var(--mono);
+    }
+
+    footer {
+      margin-top: 56px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--faint);
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    .diagram {
+      margin: 0 0 8px;
+      border: 1px solid var(--line);
+      background: var(--bg-low);
+      padding: 18px;
+    }
+    .diagram figcaption {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 14px;
+    }
+    .casebox {
+      border: 1px solid rgba(0, 218, 243, 0.4);
+      background: rgba(0, 218, 243, 0.04);
+      padding: 16px;
+    }
+    .casehead {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .casehead strong {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .casehead p, .node p, .aside { margin: 0; color: var(--muted); }
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 32px 1fr 32px 1fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .row2 {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 10px;
+    }
+    .chain2 {
+      display: grid;
+      grid-template-columns: 1fr 32px 1fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .forknote {
+      margin: 0 0 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .node {
+      background: var(--bg-mid);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--cyan);
+      padding: 12px;
+    }
+    .node h3 {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 600;
+      margin: 6px 0;
+    }
+    .node p { font-size: 15px; margin: 0 0 6px; }
+    .node p:last-child { margin-bottom: 0; }
+    .n {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ice);
+      border: 1px solid var(--cyan);
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .arr, .varr {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 18px;
+    }
+    .varr { height: 28px; }
+    .node.warnbox { border-top-color: var(--warn); }
+    .node.warnbox h3 { color: var(--warn); }
+    .node ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .node li + li { margin-top: 4px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .aside { margin-top: 12px; font-size: 15px; color: var(--faint); }
+
+    .def-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 0;
+    }
+    .def {
+      background: var(--bg-mid);
+      border: 1px solid var(--line);
+      padding: 14px 16px 12px;
+    }
+    .def .role {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .def dt {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      margin: 2px 0 8px;
+    }
+    .def dd { margin: 0; color: var(--muted); }
+    .def dd p { margin: 0 0 6px; }
+    .def dd p:last-child { margin: 0; }
+
+    @media (max-width: 800px) {
+      h1 { font-size: 32px; }
+      .objects, .split, .def-grid, .row2, .row3, .pair, .chain2 { grid-template-columns: 1fr; }
+      header.top { flex-direction: column; align-items: flex-start; }
+      header.top > * { min-width: 0; max-width: 100%; }
+      .arr { transform: rotate(90deg); height: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="mark">Aetheris. Investigator ontology</div>
+      <div class="status">Draft. Section 1. ASD-STE100. This page is not the specification.</div>
+    </header>
+
+    <h1>How a testimony becomes a theory of the case</h1>
+    <p class="lede">
+      This page gives the flow from raw data to a theory of the case.
+      Read the diagram first.
+      Then read each term in the same order.
+      You are the curator.
+      Only you approve an entity mention.
+      Only you set a claim to live.
+      Only you verify a finding or a theory.
+    </p>
+
+    <figure class="diagram">
+      <figcaption>Flow from raw data to a theory of the case</figcaption>
+      <div class="casebox">
+        <div class="casehead">
+          <strong>Case</strong>
+          <p>The case holds the events. You attach each finding and each theory to this case.</p>
+        </div>
+        <div class="chain2">
+          <article class="node">
+            <span class="n">1</span>
+            <h3>Raw</h3>
+            <p>You capture the source.</p>
+          </article>
+          <div class="arr" aria-hidden="true">→</div>
+          <article class="node">
+            <span class="n">2</span>
+            <h3>Processed span</h3>
+            <p>The span shows the speaker label and the time in the video.</p>
+          </article>
+        </div>
+        <div class="varr" aria-hidden="true">↓</div>
+        <p class="forknote">Both come from the processed span</p>
+        <div class="pair">
+          <article class="node">
+            <span class="n">3</span>
+            <h3>Entity mentions</h3>
+            <p>You list what the span refers to.</p>
+            <p>You approve each mention.</p>
+            <div class="pills">
+              <span class="chip">Named person</span>
+              <span class="chip">Object</span>
+              <span class="chip">UAP item</span>
+              <span class="chip">Location</span>
+              <span class="chip">Date and time</span>
+              <span class="chip">Organization</span>
+            </div>
+          </article>
+          <article class="node">
+            <span class="n">4</span>
+            <h3>Atomic claim</h3>
+            <p>The claimant is the person who made the claim.</p>
+            <p>You map the speaker label to that person.</p>
+            <p>The claim can also name the other entities.</p>
+          </article>
+        </div>
+        <div class="varr" aria-hidden="true">↓</div>
+        <article class="node">
+          <span class="n">5</span>
+          <h3>Comparison</h3>
+          <p>You compare the live claims. This step does not make a finding.</p>
+          <div class="pills">
+            <span class="chip">Same-assertion link</span>
+            <span class="chip">Contradiction record</span>
+            <span class="chip">Gap</span>
+            <span class="chip">Open question</span>
+          </div>
+        </article>
+        <div class="varr" aria-hidden="true">↓</div>
+        <div class="row2">
+          <article class="node">
+            <span class="n">6</span>
+            <h3>Finding</h3>
+            <p>Two different claimants make the assertion.</p>
+            <p>You keep the conflicts. You sign the finding.</p>
+          </article>
+          <article class="node warnbox">
+            <h3>Not sufficient</h3>
+            <ul>
+              <li>One telling</li>
+              <li>The same claimant again</li>
+              <li>One shared source</li>
+            </ul>
+          </article>
+        </div>
+        <div class="varr" aria-hidden="true">↓</div>
+        <article class="node">
+          <span class="n">7</span>
+          <h3>Theory</h3>
+          <p>Verified findings give the primary points.</p>
+          <p>You sign the theory as its own act.</p>
+        </article>
+        <p class="aside">The claimant is the person who spoke. A named person is someone the span talks about. These two roles are not the same. An entity mention is not a claim. An inference is not on this path.</p>
+      </div>
+    </figure>
+
+    <h2>Terms for the scope</h2>
+    <dl class="def-grid">
+      <div class="def" id="case">
+        <div class="role">Scope</div>
+        <dt>Case</dt>
+        <dd>
+          <p>A case is one investigation.</p>
+          <p>A case is not an event.</p>
+          <p>A case holds one or more events.</p>
+          <p>You attach each finding and each theory to one case.</p>
+          <p>Lazar/S4 is a case. Nimitz is a case.</p>
+        </dd>
+      </div>
+      <div class="def" id="event">
+        <div class="role">Scope</div>
+        <dt>Event</dt>
+        <dd>
+          <p>An event is one incident in the world.</p>
+          <p>An event is not a video.</p>
+          <p>Persons can refer to the same event in many videos.</p>
+          <p>If persons do not agree about one event, you keep one event.</p>
+          <p>Approved persons, locations, and dates can be keys for an event.</p>
+          <p>Those entities do not create the event by themselves.</p>
+        </dd>
+      </div>
+      <div class="def" id="video">
+        <div class="role">Scope</div>
+        <dt>Video</dt>
+        <dd>
+          <p>A video is one media file from a channel.</p>
+          <p>A video is not an event.</p>
+          <p>A video can hold one or more tellings.</p>
+        </dd>
+      </div>
+      <div class="def" id="channel">
+        <div class="role">Scope</div>
+        <dt>Channel</dt>
+        <dd>
+          <p>A channel is the YouTube channel that published the video.</p>
+          <p>The same claimant on a different channel does not make a new support.</p>
+        </dd>
+      </div>
+      <div class="def" id="person">
+        <div class="role">Scope</div>
+        <dt>Person</dt>
+        <dd>
+          <p>A person is one real individual.</p>
+          <p>A person is not a speaker label.</p>
+          <p>The same person can be the claimant when that person spoke.</p>
+          <p>The same person can be only a name in the text.</p>
+          <p>You use claimants when you test independence.</p>
+        </dd>
+      </div>
+      <div class="def" id="speaker-label">
+        <div class="role">Step 2</div>
+        <dt>Speaker label</dt>
+        <dd>
+          <p>A speaker label marks one voice in one video.</p>
+          <p>A speaker label is not a person.</p>
+          <p>You map the label to the claimant.</p>
+          <p>A live claim cannot keep only the speaker label.</p>
+        </dd>
+      </div>
+      <div class="def" id="telling">
+        <div class="role">Scope</div>
+        <dt>Telling</dt>
+        <dd>
+          <p>A telling is one account of one event in one video.</p>
+          <p>The telling shows the persons who spoke.</p>
+          <p>A telling is not an event.</p>
+          <p>A telling is not a claim.</p>
+          <p>One telling does not become a finding.</p>
+        </dd>
+      </div>
+      <div class="def" id="facet">
+        <div class="role">Scope</div>
+        <dt>Facet</dt>
+        <dd>
+          <p>A facet is the aspect of one point.</p>
+          <p>Time, place, and the object are facets.</p>
+          <p>A facet is not an entity.</p>
+          <p>A facet is not an event.</p>
+          <p>A finding can name one facet.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms for the testimony</h2>
+    <dl class="def-grid">
+      <div class="def" id="raw">
+        <div class="role">Step 1</div>
+        <dt>Raw</dt>
+        <dd>
+          <p>Raw data is the capture of one source.</p>
+          <p>Raw data shows the video identity and the time marks.</p>
+          <p>Raw data does not show that an assertion is true.</p>
+          <p>You start the flow with raw data.</p>
+        </dd>
+      </div>
+      <div class="def" id="processed-span">
+        <div class="role">Step 2</div>
+        <dt>Processed span</dt>
+        <dd>
+          <p>A processed span is text that you make from raw data.</p>
+          <p>The span shows the speaker label and the time in the video.</p>
+          <p>The span does not show that an assertion is true.</p>
+          <p>You extract entity mentions from the span.</p>
+          <p>You also make claims from the span.</p>
+        </dd>
+      </div>
+      <div class="def" id="extraction">
+        <div class="role">Step 2 to steps 3 and 4</div>
+        <dt>Extraction</dt>
+        <dd>
+          <p>An extraction pulls structure from a processed span.</p>
+          <p>One extraction can make entity mentions.</p>
+          <p>One extraction can make claims.</p>
+          <p>You approve each extraction.</p>
+          <p>A claim is not live before that approval.</p>
+          <p>An entity mention is not approved before that approval.</p>
+        </dd>
+      </div>
+      <div class="def" id="assertion">
+        <div class="role">Step 4</div>
+        <dt>Assertion</dt>
+        <dd>
+          <p>An assertion is what the claimant stated.</p>
+          <p>A claim records that assertion.</p>
+          <p>An assertion is not a point that you accept.</p>
+        </dd>
+      </div>
+      <div class="def" id="atomic-claim">
+        <div class="role">Step 4</div>
+        <dt>Atomic claim</dt>
+        <dd>
+          <p>An atomic claim records one assertion by one claimant.</p>
+          <p>The claimant is the person who made the claim.</p>
+          <p>You can approve an atomic claim by itself.</p>
+          <p>You split a claim that holds two assertions before it is live.</p>
+        </dd>
+      </div>
+      <div class="def" id="claim">
+        <div class="role">Step 4</div>
+        <dt>Claim</dt>
+        <dd>
+          <p>A claim records that the claimant made one assertion.</p>
+          <p>A claim is an epistemic layer.</p>
+          <p>A claim is not a finding.</p>
+          <p>You set a claim to live when you approve the extraction.</p>
+          <p>A live claim names the claimant.</p>
+          <p>A live claim does not mean that the assertion is true.</p>
+          <p>A live claim can also name the other entities.</p>
+        </dd>
+      </div>
+      <div class="def" id="claimant">
+        <div class="role">Step 4</div>
+        <dt>Claimant</dt>
+        <dd>
+          <p>The claimant is the person who made the claim.</p>
+          <p>One atomic claim has one claimant.</p>
+          <p>You take the claimant from the speaker label on the span.</p>
+          <p>You map that label to a person.</p>
+          <p>A live claim must name the claimant.</p>
+          <p>The claimant is not a person who is only named in the text.</p>
+        </dd>
+      </div>
+      <div class="def" id="epistemic-layer">
+        <div class="role">Type of a testimony node</div>
+        <dt>Epistemic layer</dt>
+        <dd>
+          <p>An epistemic layer is the type of a testimony node.</p>
+          <p>The five layers are raw, processed, claim, inference, and assumption.</p>
+          <p>You set the layer when you create the node.</p>
+          <p>You do not change the layer later.</p>
+          <p>A case, an event, an entity, a finding, and a theory are not layers.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms for entities</h2>
+    <dl class="def-grid">
+      <div class="def" id="entity">
+        <div class="role">Step 3</div>
+        <dt>Entity</dt>
+        <dd>
+          <p>An entity is one durable thing outside the five layers.</p>
+          <p>An entity is not a claim.</p>
+          <p>An entity is not an event.</p>
+          <p>Two mentions can refer to one entity.</p>
+          <p>You approve that link.</p>
+          <p>You do not merge the mentions in silence.</p>
+        </dd>
+      </div>
+      <div class="def" id="entity-mention">
+        <div class="role">Step 3</div>
+        <dt>Entity mention</dt>
+        <dd>
+          <p>An entity mention is one reference in one processed span.</p>
+          <p>The mention shows the words and the time in the video.</p>
+          <p>A mention is proposed until you approve it.</p>
+          <p>Approval does not make an assertion true.</p>
+          <p>A claim can use an approved mention.</p>
+        </dd>
+      </div>
+      <div class="def" id="named-person">
+        <div class="role">Step 3</div>
+        <dt>Named person</dt>
+        <dd>
+          <p>A named person is a person the span talks about.</p>
+          <p>You record that person as an entity mention.</p>
+          <p>That role does not make the person the claimant.</p>
+          <p>The person is the claimant only when that person spoke the span.</p>
+        </dd>
+      </div>
+      <div class="def" id="object">
+        <div class="role">Step 3</div>
+        <dt>Object</dt>
+        <dd>
+          <p>An object is a physical thing named in a span.</p>
+          <p>An object is not a person.</p>
+          <p>An object is not a location.</p>
+          <p>A document or a vehicle can be an object.</p>
+          <p>An object is not a claim.</p>
+        </dd>
+      </div>
+      <div class="def" id="uap-item">
+        <div class="role">Step 3. Kind of object</div>
+        <dt>UAP item</dt>
+        <dd>
+          <p>A UAP item is an object of UAP interest.</p>
+          <p>A craft can be a UAP item.</p>
+          <p>A material sample can be a UAP item.</p>
+          <p>A sensor track can be a UAP item.</p>
+          <p>A UAP item is not proof that the item exists.</p>
+          <p>A UAP item is not a claim.</p>
+        </dd>
+      </div>
+      <div class="def" id="location">
+        <div class="role">Step 3</div>
+        <dt>Location</dt>
+        <dd>
+          <p>A location is a place named in a span.</p>
+          <p>A location in the text is not the place of the video.</p>
+          <p>A location is not an event.</p>
+          <p>S-4 can be a location.</p>
+          <p>A ship position can be a location.</p>
+        </dd>
+      </div>
+      <div class="def" id="date-and-time">
+        <div class="role">Step 3</div>
+        <dt>Date and time</dt>
+        <dd>
+          <p>A date is a calendar time named in a span.</p>
+          <p>The span can also name a time of day.</p>
+          <p>This date is not the time mark of the span.</p>
+          <p>The time mark shows when the claimant spoke.</p>
+          <p>The named date shows when the claimant places the incident.</p>
+          <p>A date does not create an event by itself.</p>
+        </dd>
+      </div>
+      <div class="def" id="organization">
+        <div class="role">Step 3</div>
+        <dt>Organization</dt>
+        <dd>
+          <p>An organization is a group named in a span.</p>
+          <p>A unit, an agency, or a company can be an organization.</p>
+          <p>An organization is not a person.</p>
+          <p>An organization is not an event.</p>
+        </dd>
+      </div>
+      <div class="def" id="entity-type">
+        <div class="role">Step 3</div>
+        <dt>Entity type</dt>
+        <dd>
+          <p>The first entity types are named person, object, UAP item, location, date and time, and organization.</p>
+          <p>You can add another entity type.</p>
+          <p>A new type is not a new epistemic layer.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms beside the main path</h2>
+    <dl class="def-grid">
+      <div class="def" id="inference">
+        <div class="role">Not a finding</div>
+        <dt>Inference</dt>
+        <dd>
+          <p>An inference is a conclusion that the source does not state.</p>
+          <p>You make an inference from one or more claims.</p>
+          <p>An inference is not a claim.</p>
+          <p>An inference is not a finding.</p>
+        </dd>
+      </div>
+      <div class="def" id="assumption">
+        <div class="role">Connects points in a theory</div>
+        <dt>Assumption</dt>
+        <dd>
+          <p>An assumption is a premise that you adopt.</p>
+          <p>The source does not state the assumption.</p>
+          <p>You can use an assumption only to connect points in a theory.</p>
+          <p>You must identify each assumption.</p>
+          <p>An assumption is not a finding.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms for the comparison</h2>
+    <dl class="def-grid">
+      <div class="def" id="comparison">
+        <div class="role">Step 5</div>
+        <dt>Comparison</dt>
+        <dd>
+          <p>A comparison sets the live claims of one case next to each other.</p>
+          <p>A comparison can make same-assertion links.</p>
+          <p>A comparison can make contradiction records, gaps, and open questions.</p>
+          <p>A comparison does not make a finding.</p>
+        </dd>
+      </div>
+      <div class="def" id="same-assertion-link">
+        <div class="role">Step 5</div>
+        <dt>Same-assertion link</dt>
+        <dd>
+          <p>A same-assertion link joins two claims.</p>
+          <p>The two claims make the same assertion.</p>
+          <p>The link keeps both claims.</p>
+          <p>The link does not make a finding.</p>
+        </dd>
+      </div>
+      <div class="def" id="contradiction-record">
+        <div class="role">Step 5</div>
+        <dt>Contradiction record</dt>
+        <dd>
+          <p>A contradiction record holds a conflict between live claims.</p>
+          <p>The claims are about one point.</p>
+          <p>The record does not pick a winner.</p>
+          <p>You attach the record to a finding for that point.</p>
+        </dd>
+      </div>
+      <div class="def" id="gap">
+        <div class="role">Step 5</div>
+        <dt>Gap</dt>
+        <dd>
+          <p>A gap is a point that no live claim covers.</p>
+          <p>A gap is not a contradiction.</p>
+          <p>You do not invent a claim to fill a gap.</p>
+          <p>You can record a gap as an open question.</p>
+        </dd>
+      </div>
+      <div class="def" id="open-question">
+        <div class="role">Step 5</div>
+        <dt>Open question</dt>
+        <dd>
+          <p>An open question records a point that is not settled.</p>
+          <p>An open question is not a claim.</p>
+          <p>Only you can open the question.</p>
+          <p>Only you can resolve the question.</p>
+        </dd>
+      </div>
+      <div class="def" id="research-object">
+        <div class="role">Beside the five layers</div>
+        <dt>Research object</dt>
+        <dd>
+          <p>A research object is a record beside the five layers.</p>
+          <p>A contradiction record is a research object.</p>
+          <p>An open question is a research object.</p>
+          <p>A finding is a research object.</p>
+          <p>A theory is a research object.</p>
+          <p>You keep these objects with the testimony.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms for the result</h2>
+    <dl class="def-grid">
+      <div class="def" id="independent">
+        <div class="role">Gate before step 6</div>
+        <dt>Independent</dt>
+        <dd>
+          <p>Two supports are independent only when two different claimants make the assertion.</p>
+          <p>The same claimant on two channels is not a second support.</p>
+          <p>That repeat is not independence.</p>
+          <p>Two claimants who only repeat one source are not independent.</p>
+          <p>You keep a record of that source.</p>
+        </dd>
+      </div>
+      <div class="def" id="finding">
+        <div class="role">Step 6</div>
+        <dt>Finding</dt>
+        <dd>
+          <p>A finding records one point that you accept.</p>
+          <p>The finding shows the claims that support the point.</p>
+          <p>The finding can show the event and the facet.</p>
+          <p>You verify a finding only when the supports are independent.</p>
+          <p>You keep each conflict for that point on the finding.</p>
+          <p>When you verify a finding, you do not change the claims.</p>
+          <p>A finding is not a claim.</p>
+          <p>A finding is not an inference.</p>
+          <p>A finding is not a score.</p>
+        </dd>
+      </div>
+      <div class="def" id="theory">
+        <div class="role">Step 7</div>
+        <dt>Theory</dt>
+        <dd>
+          <p>A theory is one account of one case.</p>
+          <p>Verified findings give the primary points of the theory.</p>
+          <p>You can use an assumption only to connect those points.</p>
+          <p>You must identify each assumption.</p>
+          <p>You sign the theory as its own act.</p>
+          <p>If you reject the theory, you can keep the findings.</p>
+          <p>One case can have more than one theory.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Terms for status</h2>
+    <dl class="def-grid">
+      <div class="def" id="proposed">
+        <div class="role">Status</div>
+        <dt>Proposed</dt>
+        <dd>
+          <p>A proposed object is a draft.</p>
+          <p>You did not approve it.</p>
+          <p>You do not use a proposed object as support.</p>
+        </dd>
+      </div>
+      <div class="def" id="live">
+        <div class="role">Status of a claim</div>
+        <dt>Live</dt>
+        <dd>
+          <p>Live is a status of a claim.</p>
+          <p>You set this status when you approve the extraction.</p>
+          <p>Live does not mean that the assertion is true.</p>
+        </dd>
+      </div>
+      <div class="def" id="verified">
+        <div class="role">Status of a finding or a theory</div>
+        <dt>Verified</dt>
+        <dd>
+          <p>Verified is a status of a finding or a theory.</p>
+          <p>You set this status when you sign the object.</p>
+          <p>A verified finding meets the support rules.</p>
+          <p>A verified theory is an account that you accept.</p>
+        </dd>
+      </div>
+      <div class="def" id="rejected">
+        <div class="role">Status</div>
+        <dt>Rejected</dt>
+        <dd>
+          <p>Rejected means that you declined the object.</p>
+          <p>You keep the rejected object.</p>
+          <p>You do not use it as support.</p>
+        </dd>
+      </div>
+      <div class="def" id="superseded">
+        <div class="role">Status</div>
+        <dt>Superseded</dt>
+        <dd>
+          <p>Superseded means that a newer object replaces this object.</p>
+          <p>You keep the old object.</p>
+          <p>You do not use it as support.</p>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Which status you use</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Object</th>
+          <th>States</th>
+          <th>Effect</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Claim</td>
+          <td class="mono">proposed · live · rejected · superseded</td>
+          <td>You approve the extraction. You do not accept the assertion as true.</td>
+        </tr>
+        <tr>
+          <td>Finding</td>
+          <td class="mono">proposed · verified · rejected · superseded</td>
+          <td>Two different claimants make the assertion. You keep the conflicts for that point. You sign the finding.</td>
+        </tr>
+        <tr>
+          <td>Theory</td>
+          <td class="mono">proposed · verified · rejected · superseded</td>
+          <td>You sign the account. If you reject the theory, you can keep the verified findings.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer>
+      This page defines each term in the flow.
+      This page does not show the edges.
+      This page does not show the write rules.
+      This page does not show an example.
+    </footer>
+  </div>
+</body>
+</html>
