@@ -6797,7 +6797,7 @@
     },
     {
       "name": "Project Rubik's Cube",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -9122,7 +9122,7 @@
     },
     {
       "name": "project blue box",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -9221,7 +9221,7 @@
     },
     {
       "name": "project blue book",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -9310,7 +9310,7 @@
     },
     {
       "name": "Blue Book",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -9816,7 +9816,7 @@
     },
     {
       "name": "Project Galileo",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -12026,6 +12026,48 @@
       "id": "ENT-392",
       "occurrence_count": 1,
       "important": 0.72
+    },
+    {
+      "name": "OSAP",
+      "norm": "osap",
+      "type": "project",
+      "lifecycle": "proposed",
+      "judged_by": "jev",
+      "mentions": [
+        {
+          "span_index": 290,
+          "t_start": 1029.44,
+          "t_end": 1032.3799999999999,
+          "speaker_label": "SPEAKER_02",
+          "quote": "external OSAP stuff? Even they don't believe, though. Even Dr.",
+          "surface": "OSAP",
+          "is_entity": 0.85,
+          "type_choice": "project",
+          "type_confidence": 0.51
+        }
+      ],
+      "id": "ENT-393"
+    },
+    {
+      "name": "immaculate constellation",
+      "norm": "immaculate constellation",
+      "type": "project",
+      "lifecycle": "proposed",
+      "judged_by": "jev",
+      "mentions": [
+        {
+          "span_index": 2415,
+          "t_start": 9654.88,
+          "t_end": 9661.64,
+          "speaker_label": "SPEAKER_12",
+          "quote": "uh because he obviously ran into some pretty hardcore you know immaculate constellation",
+          "surface": "immaculate constellation",
+          "is_entity": 0.83,
+          "type_choice": "project",
+          "type_confidence": 0.44
+        }
+      ],
+      "id": "ENT-394"
     }
   ],
   "review": [
@@ -17264,6 +17306,21 @@
       "requests": 31,
       "cache_hits": 0,
       "input_tokens": 64846
+    },
+    "project_pass": {
+      "added": 2,
+      "retagged": 5,
+      "accepted": [
+        "OSAP",
+        "Project Rubik's Cube",
+        "Project Blue Book",
+        "project blue box",
+        "Blue Book",
+        "Project Galileo",
+        "immaculate constellation"
+      ],
+      "requests": 12,
+      "cache_hits": 0
     }
   }
 }

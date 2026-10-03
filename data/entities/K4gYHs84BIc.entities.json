@@ -8319,7 +8319,7 @@
     },
     {
       "name": "OSAP",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -12933,7 +12933,7 @@
     },
     {
       "name": "UAP task force",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -14903,7 +14903,7 @@
     },
     {
       "name": "kona blue",
-      "type": "uap_item",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -26295,6 +26295,17 @@
       "requests": 33,
       "cache_hits": 11,
       "input_tokens": 69786
+    },
+    "project_pass": {
+      "added": 0,
+      "retagged": 3,
+      "accepted": [
+        "OSAP",
+        "uap task force",
+        "kona blue"
+      ],
+      "requests": 10,
+      "cache_hits": 0
     }
   }
 }

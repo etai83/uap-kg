@@ -6,6 +6,7 @@ const TYPE_LABEL = {
   location: "Location",
   date_time: "Date and time",
   organization: "Organization",
+  project: "Project",
 };
 
 const NODE_COLOR = {
@@ -15,6 +16,7 @@ const NODE_COLOR = {
   uap_item: "#FF3B5C",
   location: "#3DFF8A",
   organization: "#FF7A1A",
+  project: "#C6F54A",
   object: "#4F86FF",
   date_time: "#E2B0FF",
 };

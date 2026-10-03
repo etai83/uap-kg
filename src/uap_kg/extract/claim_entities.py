@@ -10,7 +10,7 @@ generate text. This module follows that limit:
    judgment is counted and dropped. Nothing here is a verified finding.
 
 Entity types match the investigator ontology: named_person, organization,
-location, object, uap_item, date_time. ``none`` is the escape hatch.
+project, location, object, uap_item, date_time. ``none`` is the escape hatch.
 """
 
 from __future__ import annotations
@@ -39,6 +39,7 @@ WORDLIST = Path("/usr/share/dict/words")
 ENTITY_TYPES = (
     "named_person",
     "organization",
+    "project",
     "location",
     "object",
     "uap_item",
@@ -47,13 +48,31 @@ ENTITY_TYPES = (
 
 TYPE_CRITERIA = {
     "named_person": "A person the words talk about. Not the speaker role by itself.",
-    "organization": "A group, service, agency, company, or program.",
+    "organization": "A group, service, agency, or company. Not a named program or project.",
+    "project": "A named program, investigation, task force, or other effort. Not the agency or company that runs it. Not a person. Not a generic use of the word project.",
     "location": "A place named in the words. Not the place where the video was filmed.",
     "object": "A physical thing, a document, or a vehicle. Not a person, a place, or a UAP item.",
     "uap_item": "A craft, a material sample, a sensor track, or another UAP-relevant item. The mention is not proof that the item exists.",
     "date_time": "A year, a season, a calendar date, a clock time, or a duration the words name. Not the time mark of the video span.",
     "none": "Not an entity. Filler, a verb, a pronoun, or ordinary grammar.",
 }
+
+# Named efforts whose parts are ordinary words. A project is not an organization.
+PROJECT_PHRASES = (
+    "immaculate constellation",
+    "manhattan project",
+    "project blue book",
+    "project blue box",
+    "project rubik's cube",
+    "uap task force",
+    "galileo project",
+    "project twinkle",
+    "project grudge",
+    "project sign",
+    "kona blue",
+    "blue book",
+)
+PROJECT_ACRONYMS = frozenset({"uaptf", "aatip", "aawsap", "atip", "osap"})
 
 # Function words. A candidate may not start or end on one of these.
 STOP = frozenset(
@@ -120,6 +139,7 @@ DOMAIN_PHRASES = (
     "robert bigelow",
     "dylan borland",
     "jesse michels",
+    *PROJECT_PHRASES,
 )
 
 TOKEN_RE = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z]+)?")
@@ -218,6 +238,17 @@ def norm(text: str) -> str:
     folded = text.casefold().replace("’", "'")
     folded = re.sub(r"[^a-z0-9'\s]", " ", folded)
     return re.sub(r"\s+", " ", folded).strip()
+
+
+def is_project_surface(value: str) -> bool:
+    """True when the words name an effort the project pass should judge."""
+    key = norm(value)
+    if not key:
+        return False
+    if key in {norm(phrase) for phrase in PROJECT_PHRASES} or key in PROJECT_ACRONYMS:
+        return True
+    parts = key.split()
+    return len(parts) >= 2 and parts[0] == "project" and parts[1] not in STOP
 
 
 def load_wordlist(path: Path = WORDLIST) -> set[str]:
@@ -460,7 +491,7 @@ def questions_for(candidates: list[str]) -> dict[str, dict[str, Any]]:
                 "question": "In the passage, do the speakers discuss `candidate` as one specific entity?",
             },
             "criteria": {
-                "true": "The candidate names one person, organization, place, object, UAP item, or date and time that this passage discusses.",
+                "true": "The candidate names one person, organization, project, place, object, UAP item, or date and time that this passage discusses.",
                 "false": "The candidate is filler, a generic verb, a pronoun, a fragment that names no thing, or a prompt with no named thing.",
             },
         }
@@ -675,6 +706,70 @@ def cluster_entities(accepted: list[Judgment]) -> list[dict[str, Any]]:
     return entities
 
 
+def _next_entity_id(entities: list[dict[str, Any]]) -> int:
+    highest = 0
+    for entity in entities:
+        match = re.fullmatch(r"ENT-(\d+)", str(entity.get("id") or ""))
+        if match:
+            highest = max(highest, int(match.group(1)))
+    return highest + 1
+
+
+def apply_project_entities(payload: dict[str, Any], projects: list[dict[str, Any]]) -> dict[str, int]:
+    """Add project judgments to an existing entity file.
+
+    The same name keeps its id and becomes a project. A new name is appended.
+    Other entities stay as they are.
+    """
+    entities = payload.setdefault("entities", [])
+    by_norm: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for entity in entities:
+        by_norm[norm(entity.get("name") or entity.get("norm") or "")].append(entity)
+    next_id = _next_entity_id(entities)
+    retagged = 0
+    added = 0
+    for project in projects:
+        key = norm(project.get("norm") or project.get("name") or "")
+        if not key:
+            continue
+        rows = by_norm.get(key) or []
+        incoming = list(project.get("mentions") or [])
+        if rows:
+            for row in rows:
+                if row.get("type") != "project":
+                    row["type"] = "project"
+                    retagged += 1
+                row["judged_by"] = "jev"
+                row["lifecycle"] = row.get("lifecycle") or "proposed"
+                seen = {
+                    (mention.get("span_index"), mention.get("surface"))
+                    for mention in row.get("mentions") or []
+                }
+                mentions = list(row.get("mentions") or [])
+                for mention in incoming:
+                    marker = (mention.get("span_index"), mention.get("surface"))
+                    if marker in seen:
+                        continue
+                    seen.add(marker)
+                    mentions.append(mention)
+                row["mentions"] = mentions
+            continue
+        created = {
+            "name": project.get("name") or key,
+            "norm": key,
+            "type": "project",
+            "lifecycle": "proposed",
+            "judged_by": "jev",
+            "mentions": incoming,
+            "id": f"ENT-{next_id:03d}",
+        }
+        next_id += 1
+        entities.append(created)
+        by_norm[key] = [created]
+        added += 1
+    return {"retagged": retagged, "added": added}
+
+
 def phrase_in(haystack: str, needle: str) -> bool:
     if len(needle) < 2:
         return False
@@ -716,6 +811,24 @@ def group_selected(selected: list[Occurrence]) -> list[list[Occurrence]]:
     return batches
 
 
+def _trim_project_occurrences(occurrences: list[Occurrence]) -> list[Occurrence]:
+    """Drop a shorter piece, and a known project name with extra trailing words."""
+    phrases = {norm(phrase) for phrase in PROJECT_PHRASES} | set(PROJECT_ACRONYMS)
+    by_span: dict[int, list[Occurrence]] = defaultdict(list)
+    for item in occurrences:
+        by_span[item.span_index].append(item)
+    kept: list[Occurrence] = []
+    for items in by_span.values():
+        norms = {item.norm for item in items}
+        for item in items:
+            if any(is_subphrase(item.norm, other) for other in norms):
+                continue
+            if any(item.norm.startswith(phrase + " ") for phrase in phrases):
+                continue
+            kept.append(item)
+    return kept
+
+
 def extract(
     video_id: str,
     spans: list[dict[str, Any]],
@@ -725,10 +838,14 @@ def extract(
     workers: int = 4,
     max_calls: int = 1000,
     claims: list[dict[str, Any]] | None = None,
+    only_type: str | None = None,
 ) -> ExtractResult:
     if words is None:
         words = load_wordlist()
     occurrences = collect_occurrences(spans, words, speaker_notes)
+    if only_type == "project":
+        occurrences = [item for item in occurrences if is_project_surface(item.norm)]
+        occurrences = _trim_project_occurrences(occurrences)
     selected = select_occurrences(occurrences, words)
     batches = group_selected(selected)
     if len(batches) > max_calls:
@@ -764,6 +881,9 @@ def extract(
     combined = suppress_fragments(judgments)
     accepted = [item for item in combined if item.decision == "accept"]
     review = [item for item in combined if item.decision == "review"]
+    if only_type:
+        accepted = [item for item in accepted if item.type_choice == only_type]
+        review = [item for item in review if item.type_choice == only_type]
     entities = cluster_entities(accepted)
     # A stable name that passed, with only one accepted type, keeps every
     # occurrence Jev did not reject. A common-word unigram keeps judged accepts only.
@@ -1258,6 +1378,41 @@ def self_check() -> None:
         raise SystemExit("low noul should reject")
     if decide(0.95, "none", 0.9) != "reject":
         raise SystemExit("none should reject")
+    if decide(0.91, "project", 0.8) != "accept":
+        raise SystemExit("project type should accept")
+    project_found = {item.norm for item in find_candidates(
+        "He reported to the UAP task force during Project Blue Book.",
+        words,
+    )}
+    if "uap task force" not in project_found or "project blue book" not in project_found:
+        raise SystemExit(f"project phrases missing: {sorted(project_found)}")
+    if not is_project_surface("project blue box") or is_project_surface("the project"):
+        raise SystemExit("project surface gate failed")
+    project_case = {
+        "entities": [
+            {"id": "ENT-010", "name": "blue book", "type": "organization", "mentions": [{"span_index": 1, "surface": "blue book"}]},
+        ]
+    }
+    counts = apply_project_entities(
+        project_case,
+        [{
+            "name": "blue book",
+            "norm": "blue book",
+            "type": "project",
+            "mentions": [{"span_index": 2, "surface": "Blue Book"}],
+        }],
+    )
+    if counts != {"retagged": 1, "added": 0} or project_case["entities"][0]["type"] != "project":
+        raise SystemExit(f"project retag failed: {counts}")
+    if len(project_case["entities"][0]["mentions"]) != 2:
+        raise SystemExit("project mention was not kept")
+    apply_project_entities(
+        project_case,
+        [{"name": "Kona Blue", "norm": "kona blue", "type": "project", "mentions": [{"span_index": 3, "surface": "Kona Blue"}]}],
+    )
+    added = project_case["entities"][-1]
+    if added["id"] != "ENT-011" or added["type"] != "project":
+        raise SystemExit(f"new project id failed: {added}")
 
     long = Judgment(
         Occurrence("nasa hangar", "NASA hangar", 1, 1, 2, "SPEAKER_09", "near the NASA hangar", "passage"),

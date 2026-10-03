@@ -7,6 +7,7 @@
     location: "Location",
     date_time: "Date and time",
     organization: "Organization",
+    project: "Project",
   };
   const EDGE = {
     about: "rgba(0,218,243,0.45)",
@@ -114,7 +115,7 @@
     const col = columns();
     persons.forEach((p, i) => positions.set(p.id, { x: col.personX, y: 28 + i * 110, w: col.personW, h: 72, kind: "person" }));
     claims.forEach((c, i) => positions.set(c.id, { x: col.claimX, y: 28 + i * row, w: col.claimW, h: 68, kind: "claim" }));
-    const groups = ["named_person", "uap_item", "object", "location", "date_time", "organization"];
+    const groups = ["named_person", "uap_item", "object", "location", "date_time", "organization", "project"];
     let y = 28;
     groups.forEach((type) => {
       const group = entities.filter((e) => e.type === type);

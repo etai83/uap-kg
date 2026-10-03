@@ -9,6 +9,9 @@ the words. Accepted entities are proposed, not verified findings.
 which remaining entities matter, and rebuilds the case from that set. It does
 not extract again and it does not merge a second time.
 
+--projects judges project names and writes that type into the entity file.
+A matching name changes to project. A new name is appended. Other entities stay.
+
 Requires TYPESAFE_API_KEY in the environment or in .env at the repo root.
 A candidates-only run does not call Jev.
 
@@ -17,6 +20,7 @@ Examples:
   python scripts/extract_claim_entities.py K4gYHs84BIc --candidates-only
   python scripts/extract_claim_entities.py K4gYHs84BIc
   python scripts/extract_claim_entities.py K4gYHs84BIc --refine
+  python scripts/extract_claim_entities.py K4gYHs84BIc --projects
 """
 
 from __future__ import annotations
@@ -35,6 +39,7 @@ from uap_kg.extract.claim_entities import (  # noqa: E402
     IMPORTANT_NOUL,
     JevClient,
     JevError,
+    apply_project_entities,
     candidate_report,
     extract,
     judge_importance,
@@ -225,6 +230,68 @@ def run_refine(args: argparse.Namespace, key: str) -> int:
     return 0
 
 
+def run_projects(args: argparse.Namespace, key: str) -> int:
+    """Judge project surfaces and merge them into the existing entity file."""
+    path = spans_path(args.video_id, args.spans)
+    if not path.is_file():
+        print(f"missing {path}", file=sys.stderr)
+        return 1
+    out = Path(args.out) if args.out else ROOT / "data" / "entities" / f"{args.video_id}.entities.json"
+    if not out.is_file():
+        print(f"missing {out}. Run the extractor once before --projects.", file=sys.stderr)
+        return 1
+    payload = json.loads(out.read_text())
+    if "apikey_" in json.dumps(payload):
+        print("refusing to update a file that contains a key", file=sys.stderr)
+        return 1
+    spans = load_spans(path)
+    words = load_wordlist()
+    cache_dir = ROOT / "data" / "jev_cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    client = JevClient(key, model=args.model, cache_path=cache_dir / f"{args.video_id}.projects.jsonl")
+    print(f"video={args.video_id} spans={len(spans)} model={args.model} projects", flush=True)
+    try:
+        result = extract(
+            args.video_id,
+            spans,
+            client,
+            words=words,
+            speaker_notes=SPEAKER_NOTES.get(args.video_id),
+            workers=args.workers,
+            max_calls=args.max_calls,
+            only_type="project",
+        )
+    except JevError as exc:
+        print(str(exc).replace(key, "[redacted]"), file=sys.stderr)
+        return 1
+    counts = apply_project_entities(payload, result.entities)
+    stats = payload.setdefault("stats", {})
+    if not isinstance(stats, dict):
+        stats = {}
+        payload["stats"] = stats
+    stats["project_pass"] = {
+        "added": counts["added"],
+        "retagged": counts["retagged"],
+        "accepted": [entity.get("name") for entity in result.entities],
+        "requests": client.requests,
+        "cache_hits": client.cache_hits,
+    }
+    encoded = json.dumps(payload)
+    if "apikey_" in encoded:
+        print("refusing to write output that contains a key", file=sys.stderr)
+        return 1
+    out.write_text(json.dumps(payload, indent=2) + "\n")
+    names = ", ".join(entity.get("name") or "" for entity in result.entities) or "none"
+    print(
+        f"accepted={len(result.entities)} added={counts['added']} retagged={counts['retagged']} "
+        f"requests={client.requests} cache_hits={client.cache_hits}",
+        flush=True,
+    )
+    print(f"projects: {names}")
+    print(f"wrote {out}")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Extract proposed entities from spans with Jev.")
     parser.add_argument("video_id", nargs="?", default=DEFAULT_VIDEO)
@@ -233,6 +300,7 @@ def main() -> int:
     parser.add_argument("--case", help="Case JSON to merge accepted entities into")
     parser.add_argument("--candidates-only", action="store_true", help="Find candidates and do not call Jev")
     parser.add_argument("--refine", action="store_true", help="Drop fragments, then ask Jev which entities matter")
+    parser.add_argument("--projects", action="store_true", help="Judge project names and add that entity type")
     parser.add_argument("--self-check", action="store_true", help="Run local checks and exit")
     parser.add_argument("--model", default="jev-latest")
     parser.add_argument("--workers", type=int, default=4)
@@ -243,9 +311,16 @@ def main() -> int:
         self_check()
         return 0
 
-    if args.refine and args.candidates_only:
-        print("Use either --refine or --candidates-only.", file=sys.stderr)
+    if args.refine and args.candidates_only or args.projects and (args.refine or args.candidates_only):
+        print("Use only one of --refine, --candidates-only, or --projects.", file=sys.stderr)
         return 1
+
+    if args.projects:
+        key = load_api_key(ROOT)
+        if not key:
+            print("TYPESAFE_API_KEY is missing. Put it in the environment or in .env and retry.", file=sys.stderr)
+            return 1
+        return run_projects(args, key)
 
     if args.refine:
         key = load_api_key(ROOT)

@@ -951,7 +951,7 @@
     },
     {
       "name": "Manhattan Project",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -1158,7 +1158,7 @@
     },
     {
       "name": "blue book",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -1420,7 +1420,7 @@
     },
     {
       "name": "UAP task force",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -1477,7 +1477,7 @@
     },
     {
       "name": "UAPTF",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -2970,7 +2970,7 @@
     },
     {
       "name": "Project Blue Book",
-      "type": "organization",
+      "type": "project",
       "lifecycle": "proposed",
       "judged_by": "jev",
       "mentions": [
@@ -19027,6 +19027,19 @@
       "requests": 37,
       "cache_hits": 0,
       "input_tokens": 75201
+    },
+    "project_pass": {
+      "added": 0,
+      "retagged": 5,
+      "accepted": [
+        "Manhattan Project",
+        "Blue Book",
+        "UAP task force",
+        "UAPTF",
+        "Project Blue Book"
+      ],
+      "requests": 13,
+      "cache_hits": 0
     }
   }
 }
