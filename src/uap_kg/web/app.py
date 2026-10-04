@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, Field
 
-from . import store
+from . import context, store
 from .case_graph import graph_payload, mark_same, restore_log, revert_log
 
 HERE = Path(__file__).resolve().parent
@@ -159,6 +159,42 @@ def api_spans(video_id: str):
         raise HTTPException(404, "unknown video")
     spans = store.spans_for_video(video_id)
     return {"video": video, "spans": spans}
+
+
+@app.get("/api/videos/{video_id}/claim-context")
+def api_video_claim_context(
+    video_id: str,
+    t_start: float | None = None,
+    quote: str = "",
+    claim_text: str = "",
+):
+    spans = store.spans_for_video(video_id)
+    sentences = context.extract_sentences(spans)
+    return context.find_claim_context(sentences, t_start=t_start, quote=quote, claim_text=claim_text)
+
+
+@app.get("/api/claims/{claim_id}/context")
+def api_claim_context(claim_id: str):
+    data = store.load()
+    claim = next((c for c in data["claims"] if c["id"] == claim_id), None)
+    if not claim:
+        borland_path = Path(__file__).parent / "data" / "borland_case.json"
+        if borland_path.exists():
+            b_data = json.loads(borland_path.read_text())
+            claim = next((c for c in b_data.get("claims", []) if c["id"] == claim_id), None)
+            if claim and not claim.get("video_id"):
+                claim["video_id"] = b_data.get("case", {}).get("video_id")
+    if not claim:
+        raise HTTPException(404, "unknown claim")
+    video_id = claim.get("video_id") or ""
+    spans = store.spans_for_video(video_id) if video_id else []
+    sentences = context.extract_sentences(spans)
+    return context.find_claim_context(
+        sentences,
+        t_start=claim.get("t_start"),
+        quote=claim.get("quote") or "",
+        claim_text=claim.get("claim_text") or claim.get("text") or "",
+    )
 
 
 @app.post("/api/claims/{claim_id}/lifecycle")

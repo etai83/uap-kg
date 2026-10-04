@@ -43,6 +43,8 @@ let sprites = new Map();
 let viewIds = new Set();
 let hot = null;
 let hovered = null;
+let caseSpans = [];
+let caseSentences = [];
 let selected = null;
 let activeType = "all";
 let query = "";
@@ -297,13 +299,21 @@ function renderInspect(id) {
     const related = (payload.links || []).filter((link) => link.source === item.id || link.target === item.id);
     const t = Math.floor(item.t_start || 0);
     const href = "https://www.youtube.com/watch?v=" + payload.case.video_id + "&t=" + t + "s";
+    const ctx = window.Aetheris && Aetheris.findClaimContext
+      ? Aetheris.findClaimContext(item, caseSentences)
+      : { prev: "", sentence: item.quote || item.text, after: "" };
     inspectEl.innerHTML = `
       <div class="font-label-caps text-label-caps text-primary mb-2">Claim · proposed</div>
       <p class="text-on-surface mb-3">${esc(item.text)}</p>
       <p class="mb-2"><span class="text-on-surface-variant">Claimant.</span> ${esc(who ? who.name : item.claimant_id)}</p>
       <p class="mb-2"><span class="text-on-surface-variant">Speaker label.</span> ${esc(item.speaker_label || "—")}</p>
       <p class="mb-3"><span class="text-on-surface-variant">Time.</span> ${esc(clock(item.t_start))}–${esc(clock(item.t_end))}</p>
-      <p class="italic text-on-surface mb-3">“${esc(item.quote)}”</p>
+      <div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Transcript Context</div>
+      <div class="p-3 bg-surface-container-lowest/80 border border-outline-variant/30 rounded font-body-sm text-body-sm leading-relaxed text-on-surface-variant mb-3">
+        ${ctx.prev ? `<span class="opacity-60">${esc(ctx.prev)} </span>` : ""}
+        <mark class="claim-soft-highlight">${esc(ctx.sentence)}</mark>
+        ${ctx.after ? `<span class="opacity-60"> ${esc(ctx.after)}</span>` : ""}
+      </div>
       <a class="text-primary font-mono-data text-[12px]" href="${esc(href)}" target="_blank" rel="noreferrer">Open this moment</a>
       <div class="font-label-caps text-label-caps text-on-surface-variant mt-4 mb-2">Entities</div>
       ${ents.map((row) => `<button type="button" data-node="${esc(row.id)}" class="block w-full text-left mb-1 px-2 py-1 border border-outline-variant/30">${esc(row.name)} <span class="text-on-surface-variant">${esc(TYPE_LABEL[row.type] || row.type)}</span></button>`).join("") || "<p>No entity on this claim.</p>"}
@@ -451,6 +461,20 @@ async function main() {
   document.getElementById("case-note").textContent = payload.case.note;
   document.getElementById("case-video").href = "https://www.youtube.com/watch?v=" + payload.case.video_id;
   document.getElementById("case-video").textContent = payload.case.video_id;
+  if (payload.case && payload.case.video_id) {
+    try {
+      const sRes = await fetch(`/api/videos/${payload.case.video_id}/spans`);
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        caseSpans = sData.spans || [];
+        if (window.Aetheris && Aetheris.extractSentences) {
+          caseSentences = Aetheris.extractSentences(caseSpans);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load spans for 3d case", err);
+    }
+  }
   if (statusEl) statusEl.textContent = "Arranging the graph…";
   buildModel();
   bind();

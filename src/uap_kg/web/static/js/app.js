@@ -11,6 +11,176 @@ const Aetheris = (() => {
     return h === "00" ? `${m}:${sec}` : `${h}:${m}:${sec}`;
   }
 
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  function extractSentences(spans) {
+    const tokens = [];
+    for (const s of spans || []) {
+      const txt = (s.text || "").trim();
+      if (!txt) continue;
+      const words = txt.split(/\s+/);
+      if (!words.length) continue;
+      const t0 = Number(s.t_start) || 0;
+      const t1 = Number(s.t_end) || 0;
+      const dur = Math.max(t1 - t0, 0.01);
+      for (let idx = 0; idx < words.length; idx++) {
+        const wt0 = t0 + (idx / words.length) * dur;
+        const wt1 = t0 + ((idx + 1) / words.length) * dur;
+        tokens.push({ word: words[idx], t0: wt0, t1: wt1, speaker: s.speaker_label });
+      }
+    }
+
+    const sentences = [];
+    let cur = [];
+    const abbrRegex = /^(mr|mrs|ms|dr|gen|lt|col|sgt|vs|etc|approx|no)\.$/i;
+    for (const tok of tokens) {
+      cur.push(tok);
+      const w = tok.word;
+      if (/[.!?]$/.test(w) && !abbrRegex.test(w)) {
+        sentences.push({
+          text: cur.map((t) => t.word).join(" "),
+          t_start: cur[0].t0,
+          t_end: cur[cur.length - 1].t1,
+          speaker: cur[0].speaker,
+        });
+        cur = [];
+      }
+    }
+    if (cur.length) {
+      sentences.push({
+        text: cur.map((t) => t.word).join(" "),
+        t_start: cur[0].t0,
+        t_end: cur[cur.length - 1].t1,
+        speaker: cur[0].speaker,
+      });
+    }
+    return sentences;
+  }
+
+  function findClaimContext(claim, sentences) {
+    if (!sentences || !sentences.length) {
+      return {
+        prev: "",
+        sentence: claim?.quote || claim?.claim_text || claim?.text || "",
+        after: "",
+        t_start: Number(claim?.t_start) || 0,
+        t_end: Number(claim?.t_end) || 0,
+        speaker: claim?.speaker_label || null,
+      };
+    }
+
+    const q = (claim.quote || "").toLowerCase();
+    const ct = (claim.claim_text || claim.text || "").toLowerCase();
+    const qWords = q.match(/\b\w{3,}\b/g) || [];
+    const ctWords = ct.match(/\b\w{3,}\b/g) || [];
+    const targetWords = new Set([...qWords, ...ctWords]);
+
+    const t = claim.t_start != null ? Number(claim.t_start) : null;
+    let bestIdx = -1;
+    let bestScore = -1;
+
+    for (let i = 0; i < sentences.length; i++) {
+      const s = sentences[i];
+      const sLower = s.text.toLowerCase();
+      const sWords = new Set(sLower.match(/\b\w{3,}\b/g) || []);
+      let score = 0;
+
+      if (targetWords.size > 0) {
+        let overlap = 0;
+        for (const w of targetWords) {
+          if (sWords.has(w)) overlap++;
+        }
+        if (overlap > 0) score += overlap * 15;
+      }
+
+      if (t != null) {
+        if (t >= s.t_start && t <= s.t_end) {
+          score += 50;
+        } else if (Math.abs(s.t_start - t) < 4) {
+          score += 30;
+        } else if (Math.abs(s.t_start - t) < 15) {
+          score += 15;
+        } else if (Math.abs(s.t_start - t) < 60) {
+          score += 5;
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = i;
+      }
+    }
+
+    if (bestIdx === -1 && t != null) {
+      let minDiff = Infinity;
+      for (let i = 0; i < sentences.length; i++) {
+        const diff = Math.abs(sentences[i].t_start - t);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestIdx = i;
+        }
+      }
+    }
+
+    if (bestIdx === -1) bestIdx = 0;
+
+    return {
+      prev: bestIdx > 0 ? sentences[bestIdx - 1].text : "",
+      sentence: sentences[bestIdx].text,
+      after: bestIdx + 1 < sentences.length ? sentences[bestIdx + 1].text : "",
+      t_start: sentences[bestIdx].t_start,
+      t_end: sentences[bestIdx].t_end,
+      speaker: sentences[bestIdx].speaker,
+    };
+  }
+
+  function highlightInSpan(spanText, sentence) {
+    const st = (spanText || "").trim();
+    const sent = (sentence || "").trim();
+    if (!st || !sent) return esc(spanText);
+
+    const idx = spanText.toLowerCase().indexOf(sent.toLowerCase());
+    if (idx !== -1) {
+      const before = spanText.slice(0, idx);
+      const match = spanText.slice(idx, idx + sent.length);
+      const after = spanText.slice(idx + sent.length);
+      return `${esc(before)}<mark class="claim-soft-highlight">${esc(match)}</mark>${esc(after)}`;
+    }
+
+    if (sent.toLowerCase().includes(st.toLowerCase())) {
+      return `<mark class="claim-soft-highlight">${esc(spanText)}</mark>`;
+    }
+
+    const words = sent.split(/\s+/).filter((w) => w.length > 2);
+    let bestPhrase = "";
+    for (let len = words.length; len >= 3; len--) {
+      for (let i = 0; i <= words.length - len; i++) {
+        const phrase = words.slice(i, i + len).join(" ");
+        if (spanText.toLowerCase().includes(phrase.toLowerCase())) {
+          bestPhrase = phrase;
+          break;
+        }
+      }
+      if (bestPhrase) break;
+    }
+
+    if (bestPhrase) {
+      const pIdx = spanText.toLowerCase().indexOf(bestPhrase.toLowerCase());
+      if (pIdx !== -1) {
+        const before = spanText.slice(0, pIdx);
+        const match = spanText.slice(pIdx, pIdx + bestPhrase.length);
+        const after = spanText.slice(pIdx + bestPhrase.length);
+        return `${esc(before)}<mark class="claim-soft-highlight">${esc(match)}</mark>${esc(after)}`;
+      }
+    }
+
+    return esc(spanText);
+  }
+
   function ytJump(videoId, t) {
     const sec = Math.floor(Number(t) || 0);
     window.open(`https://www.youtube.com/watch?v=${videoId}&t=${sec}s`, "_blank", "noopener");
@@ -222,6 +392,70 @@ const Aetheris = (() => {
       data.videos[0]?.id;
     if (prefer) sel.value = prefer;
 
+    let selectedClaimId = null;
+    let videoSpans = [];
+    let videoSentences = [];
+
+    const clearSpanHighlights = () => {
+      $$("#rv-spans [data-t]").forEach((el) => {
+        el.classList.remove("span-active", "claim-span-highlighted");
+        const p = el.querySelector(".span-text");
+        if (p && el.dataset.rawText) {
+          p.textContent = el.dataset.rawText;
+        }
+      });
+    };
+
+    const highlightClaimInTranscript = (ctx) => {
+      clearSpanHighlights();
+      if (!ctx || !ctx.sentence) return;
+
+      const tStart = ctx.t_start;
+      const tEnd = ctx.t_end;
+      let targetEl = null;
+
+      $$("#rv-spans [data-t]").forEach((el) => {
+        const start = Number(el.dataset.t);
+        const end = Number(el.dataset.te);
+        const origText = el.dataset.rawText || el.querySelector(".span-text")?.textContent || "";
+        if (!el.dataset.rawText) el.dataset.rawText = origText;
+
+        const overlapsTime = (start <= tEnd && end >= tStart) || (Math.abs(start - tStart) < 3);
+        const matchesWords = ctx.sentence && (
+          ctx.sentence.toLowerCase().includes(origText.toLowerCase().slice(0, 30)) ||
+          origText.toLowerCase().includes(ctx.sentence.toLowerCase().slice(0, 30))
+        );
+
+        if (overlapsTime || matchesWords) {
+          el.classList.add("span-active", "claim-span-highlighted");
+          const p = el.querySelector(".span-text");
+          if (p) {
+            p.innerHTML = highlightInSpan(origText, ctx.sentence);
+          }
+          if (!targetEl) targetEl = el;
+        }
+      });
+
+      if (targetEl) {
+        targetEl.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    };
+
+    const selectClaim = (claimId, doJump = false) => {
+      selectedClaimId = selectedClaimId === claimId && !doJump ? null : claimId;
+      renderClaims(sel.value);
+      if (selectedClaimId) {
+        const c = data.claims.find((x) => x.id === selectedClaimId);
+        if (c) {
+          const ctx = findClaimContext(c, videoSentences);
+          highlightClaimInTranscript(ctx);
+          if (doJump) ytJump(sel.value, c.t_start);
+        }
+      } else {
+        clearSpanHighlights();
+      }
+    };
+
     const renderClaims = (videoId) => {
       const claims = data.claims.filter((c) => c.video_id === videoId);
       const pending = claims.filter((c) => c.lifecycle === "proposed").length;
@@ -235,38 +469,69 @@ const Aetheris = (() => {
       $("#rv-claims").innerHTML = claims.length
         ? claims
             .map(
-              (c) => `
-        <div class="bg-surface border border-outline-variant/40 rounded p-4">
+              (c) => {
+                const isSelected = c.id === selectedClaimId;
+                const ctx = isSelected ? findClaimContext(c, videoSentences) : null;
+                return `
+        <div class="claim-item cursor-pointer bg-surface border ${
+          isSelected
+            ? "claim-card-selected border-primary"
+            : "border-outline-variant/40 hover:border-outline-variant/70"
+        } rounded p-4 transition-all" data-claim="${esc(c.id)}">
           <div class="flex justify-between items-start mb-3">
-            <div class="font-mono-data text-mono-data text-on-surface-variant/60 text-[10px]">ID: ${c.id}</div>
+            <div class="font-mono-data text-mono-data text-on-surface-variant/60 text-[10px]">ID: ${esc(c.id)}</div>
             <span class="font-label-caps text-[9px] px-2 py-0.5 bg-surface-variant">${lifecycleBadge(c.lifecycle)}</span>
           </div>
-          <h3 class="font-headline-sm text-[16px] mb-2">${c.claim_text}</h3>
-          <p class="font-body-sm text-body-sm text-on-surface-variant/80 mb-3">${c.body || ""}</p>
-          <button type="button" class="font-mono-data text-[12px] text-primary underline decoration-dashed block mb-3" data-jump="${c.t_start}">
+          <h3 class="font-headline-sm text-[16px] mb-2">${esc(c.claim_text)}</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant/80 mb-3">${esc(c.body || "")}</p>
+          <button type="button" class="font-mono-data text-[12px] text-primary underline decoration-dashed block mb-3 text-left" data-jump="${c.t_start}" data-claim-jump="${esc(c.id)}">
             [${fmtTime(c.t_start)}] ${(c.quote || "").slice(0, 80)}
           </button>
           ${
-            c.lifecycle === "proposed"
-              ? `<div class="flex gap-2 border-t border-outline-variant/20 pt-3">
-            <button type="button" data-act="rejected" data-id="${c.id}" class="flex-1 bg-error/10 border border-error/30 text-error font-label-caps text-[11px] py-2 rounded">Reject</button>
-            <button type="button" data-act="live" data-id="${c.id}" class="flex-1 bg-primary/10 border border-primary/40 text-primary font-label-caps text-[11px] py-2 rounded">Approve</button>
+            isSelected && ctx
+              ? `
+          <div class="mt-3 pt-3 border-t border-outline-variant/20">
+            <div class="font-label-caps text-[10px] tracking-wider text-primary mb-1.5 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px]">subject</span>
+              TRANSCRIPT CONTEXT
+            </div>
+            <div class="p-3 bg-surface-container-lowest/90 border border-outline-variant/30 rounded font-body-sm text-[13px] leading-relaxed text-on-surface-variant">
+              ${ctx.prev ? `<span class="opacity-60">${esc(ctx.prev)} </span>` : ""}
+              <mark class="claim-soft-highlight">${esc(ctx.sentence)}</mark>
+              ${ctx.after ? `<span class="opacity-60"> ${esc(ctx.after)}</span>` : ""}
+            </div>
           </div>`
               : ""
           }
-        </div>`
+          ${
+            c.lifecycle === "proposed"
+              ? `<div class="flex gap-2 border-t border-outline-variant/20 pt-3 mt-3">
+            <button type="button" data-act="rejected" data-id="${esc(c.id)}" class="flex-1 bg-error/10 border border-error/30 text-error font-label-caps text-[11px] py-2 rounded">Reject</button>
+            <button type="button" data-act="live" data-id="${esc(c.id)}" class="flex-1 bg-primary/10 border border-primary/40 text-primary font-label-caps text-[11px] py-2 rounded">Approve</button>
+          </div>`
+              : ""
+          }
+        </div>`;
+              }
             )
             .join("")
         : `<p class="font-body-sm text-on-surface-variant">No claims bound to this video yet. Live extraction is not wired; seed claims appear on Lazar/C2 videos.</p>`;
 
-      $$("#rv-claims [data-jump]").forEach((b) =>
-        b.addEventListener("click", () => {
-          highlightSpan(Number(b.dataset.jump));
-          ytJump(videoId, b.dataset.jump);
-        })
-      );
+      $$("#rv-claims [data-claim]").forEach((card) => {
+        card.addEventListener("click", (e) => {
+          if (e.target.closest("[data-act]")) return;
+          if (e.target.closest("[data-jump]")) {
+            e.stopPropagation();
+            selectClaim(card.dataset.claim, true);
+            return;
+          }
+          selectClaim(card.dataset.claim, false);
+        });
+      });
+
       $$("#rv-claims [data-act]").forEach((b) =>
-        b.addEventListener("click", async () => {
+        b.addEventListener("click", async (e) => {
+          e.stopPropagation();
           await fetch(`/api/claims/${b.dataset.id}/lifecycle`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -305,15 +570,6 @@ const Aetheris = (() => {
       }
     });
 
-    function highlightSpan(t) {
-      $$("#rv-spans [data-t]").forEach((el) => {
-        const start = Number(el.dataset.t);
-        const end = Number(el.dataset.te);
-        el.classList.toggle("span-active", t >= start && t <= end + 0.5);
-        if (t >= start && t <= end + 0.5) el.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
-    }
-
     const loadVideo = async () => {
       const id = sel.value;
       const v = data.videos.find((x) => x.id === id);
@@ -335,6 +591,10 @@ const Aetheris = (() => {
       }
       const beforeFind = spans.length;
       if (q) spans = spans.filter((s) => (s.text || "").toLowerCase().includes(q));
+      videoSpans = spans;
+      videoSentences = extractSentences(spans);
+      selectedClaimId = null;
+
       const ready = withSpans.map((x) => x.title).filter(Boolean);
       const emptyMsg = () => {
         if (q && beforeFind) {
@@ -357,13 +617,13 @@ const Aetheris = (() => {
         ? spans
             .map(
               (s) => `
-        <div class="flex gap-4 group" data-t="${s.t_start}" data-te="${s.t_end}">
+        <div class="flex gap-4 group" data-t="${s.t_start}" data-te="${s.t_end}" data-raw-text="${esc(s.text)}">
           <div class="w-16 flex-shrink-0 text-right">
             <button type="button" class="font-mono-data text-[11px] text-primary" data-yt="${s.t_start}">${fmtTime(s.t_start)}</button>
-            <span class="font-label-caps text-label-caps text-secondary mt-1 block">${s.speaker_label || "?"}</span>
+            <span class="font-label-caps text-label-caps text-secondary mt-1 block">${esc(s.speaker_label || "?")}</span>
           </div>
           <div class="flex-1 pb-3 border-b border-outline-variant/10 p-2 rounded">
-            <p class="font-body-md text-body-md text-on-surface leading-relaxed">${s.text}</p>
+            <p class="span-text font-body-md text-body-md text-on-surface leading-relaxed">${esc(s.text)}</p>
           </div>
         </div>`
             )
@@ -681,5 +941,16 @@ const Aetheris = (() => {
 
   document.addEventListener("DOMContentLoaded", wireChrome);
 
-  return { pageTimeline, pageCatalog, pageReview, pageCompare, pageGraph, pageTranscripts };
+  return {
+    pageTimeline,
+    pageCatalog,
+    pageReview,
+    pageCompare,
+    pageGraph,
+    pageTranscripts,
+    extractSentences,
+    findClaimContext,
+    highlightInSpan,
+    esc,
+  };
 })();

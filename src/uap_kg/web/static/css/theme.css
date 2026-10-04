@@ -21,3 +21,21 @@ body {
 
 .modal-open { overflow: hidden; }
 .hidden-imp { display: none !important; }
+
+.claim-soft-highlight {
+  background-color: rgba(255, 225, 74, 0.22);
+  color: #fff382;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 12px rgba(255, 225, 74, 0.12);
+  display: inline;
+}
+.claim-card-selected {
+  border-color: rgba(255, 225, 74, 0.6) !important;
+  background-color: rgba(39, 54, 71, 0.45) !important;
+  box-shadow: 0 0 16px rgba(255, 225, 74, 0.08);
+}
+.claim-span-highlighted {
+  border-left: 3px solid #ffe14a !important;
+  background-color: rgba(255, 225, 74, 0.07) !important;
+}
