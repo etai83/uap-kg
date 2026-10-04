@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 from . import context, store
 from .case_graph import graph_payload, mark_same, restore_log, revert_log
 
+from typing import Optional
+
 HERE = Path(__file__).resolve().parent
 # Python 3.14 + Jinja default cache can choke on unhashable cache keys.
 _env = Environment(
@@ -45,17 +47,17 @@ def timeline(request: Request):
 
 
 @app.get("/review", response_class=HTMLResponse)
-def review(request: Request, video: str | None = None):
+def review(request: Request, video: Optional[str] = None):
     return _page(request, "review.html", "review", video_id=video or "")
 
 
 @app.get("/transcripts", response_class=HTMLResponse)
-def transcripts(request: Request, video: str | None = None):
+def transcripts(request: Request, video: Optional[str] = None):
     return _page(request, "transcripts.html", "transcripts", video_id=video or "")
 
 
 @app.get("/compare", response_class=HTMLResponse)
-def compare(request: Request, event: str | None = "EVT-89-014"):
+def compare(request: Request, event: Optional[str] = "EVT-89-014"):
     return _page(request, "compare.html", "compare", event_id=event or "EVT-89-014")
 
 
@@ -164,7 +166,7 @@ def api_spans(video_id: str):
 @app.get("/api/videos/{video_id}/claim-context")
 def api_video_claim_context(
     video_id: str,
-    t_start: float | None = None,
+    t_start: Optional[float] = None,
     quote: str = "",
     claim_text: str = "",
 ):

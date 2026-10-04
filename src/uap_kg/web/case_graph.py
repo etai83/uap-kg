@@ -289,6 +289,37 @@ def graph_payload(repo: Path | None = None, alias_path: Path | None = None) -> d
     }
 
 
+def clean_name_score(text: str) -> tuple:
+    raw = (text or "").strip()
+    if not raw:
+        return (-100, 0, 0, 0, 0)
+    lower = raw.lower()
+    penalty = 0
+    bad_prefixes = (
+        "man named ", "woman named ", "guy named ", "person named ",
+        "someone named ", "knew ", "about ", "per ", "from ", "to ", "with "
+    )
+    bad_suffixes = (
+        " interview", " story", " voice", "'s voice", " won't",
+        " didn't", " said", " told", " audio", " video"
+    )
+    for bp in bad_prefixes:
+        if lower.startswith(bp):
+            penalty += 15
+    for bs in bad_suffixes:
+        if lower.endswith(bs):
+            penalty += 15
+    words = raw.split()
+    title_words = sum(1 for w in words if w and w[0].isupper() and (len(w) == 1 or w[1:].islower()))
+    ratio = (title_words / len(words)) if words else 0
+    return (-penalty, round(ratio, 2), title_words, -len(words), -len(raw))
+
+
+def _name_rank(node: dict) -> tuple:
+    full = node.get("full") or node.get("label") or ""
+    return clean_name_score(full)
+
+
 def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], list[dict]]:
     """One node for each name and type. Connections move onto that node."""
     groups: dict[tuple[str, str], list[dict]] = {}
@@ -308,10 +339,7 @@ def _join_same_names(nodes: list[dict], links: list[dict]) -> tuple[list[dict], 
         if len(members) < 2:
             continue
         new_id = "name:" + key[1] + ":" + key[0]
-        best = max(
-            members,
-            key=lambda item: (sum(char.isupper() for char in item.get("full") or ""), len(item.get("full") or "")),
-        )
+        best = max(members, key=_name_rank)
         case_ids: list[str] = []
         shorts: list[str] = []
         folded: list[str] = []
@@ -455,11 +483,6 @@ def _case_pairs(node: dict) -> list[tuple[str, str]]:
     return [(case_id, case_id) for case_id in case_ids]
 
 
-def _name_rank(node: dict) -> tuple[int, int]:
-    full = node.get("full") or ""
-    return (sum(char.isupper() for char in full), len(full))
-
-
 def _legacy_entries(nodes: list[dict], groups: list[list[str]]) -> list[dict]:
     """Turn an older group file into log entries. The kept name is the one already shown."""
     by_member: dict[str, dict] = {}
@@ -549,7 +572,12 @@ def _apply_log(nodes: list[dict], links: list[dict], entries: list[dict]) -> tup
                 alias[old_id] = new_id
         for old_id in old_ids:
             alias[old_id] = new_id
-        keep_label = entry.get("keep_label") or survivor.get("full") or ""
+        curator_label = entry.get("keep_label") or ""
+        if curator_label and clean_name_score(curator_label)[0] == 0:
+            keep_label = curator_label
+        else:
+            all_candidate_names = [name for name in ([curator_label] + names + [survivor.get("full")]) if name]
+            keep_label = max(all_candidate_names, key=clean_name_score) if all_candidate_names else (survivor.get("full") or "")
         survivor["id"] = new_id
         survivor["members"] = folded
         survivor["full"] = keep_label
@@ -563,7 +591,7 @@ def _apply_log(nodes: list[dict], links: list[dict], entries: list[dict]) -> tup
             survivor["entityType"] = entry["keep_type"]
         if any(node.get("kind") == "entity" for node in matching):
             survivor["kind"] = "entity"
-        survivor["quote"] = survivor.get("quote") or ""
+        survivor["quote"] = next((n.get("quote") for n in matching if n.get("quote")), survivor.get("quote") or "")
     kept = [node for node in nodes if node["id"] not in drop]
     return kept, _collapse_links(links, alias, {node["id"] for node in kept})
 
@@ -606,14 +634,31 @@ def mark_same(keep_id: str, replace_id: str, alias_path: Path | None = None) -> 
     replace = by_id[replace_id]
     if keep.get("kind") == "claim" or replace.get("kind") == "claim":
         raise ValueError("A claim stays a claim. Join entities or people.")
+    keep_type = keep.get("entityType") or ("named_person" if keep.get("kind") == "person" else "")
+    replace_type = replace.get("entityType") or ("named_person" if replace.get("kind") == "person" else "")
+    if keep_type and replace_type and keep_type != replace_type:
+        raise ValueError(
+            f"Cannot merge '{keep.get('full')}' ({keep_type}) with '{replace.get('full')}' ({replace_type}). "
+            "Both nodes must share the same entity type."
+        )
+    keep_name = (keep.get("full") or keep.get("label") or "").strip()
+    replace_name = (replace.get("full") or replace.get("label") or "").strip()
+    keep_words = [w.lower() for w in keep_name.split() if len(w) > 1]
+    replace_words = [w.lower() for w in replace_name.split() if len(w) > 1]
+    if len(keep_words) >= 2 and len(replace_words) >= 2:
+        if keep_words[-1] != replace_words[-1] and keep_words[0] == replace_words[0]:
+            raise ValueError(
+                f"Cannot merge '{keep_name}' with '{replace_name}'. They appear to be distinct individuals."
+            )
+    chosen_label = max([keep_name, replace_name], key=clean_name_score)
     state = _load_state(path)
     state["log"].append(
         {
             "at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-            "keep_label": keep.get("full") or keep.get("label") or "",
-            "keep_type": keep.get("entityType") or "",
+            "keep_label": chosen_label,
+            "keep_type": keep_type or replace_type or keep.get("entityType") or "",
             "keep_members": list(keep.get("members") or [keep_id]),
-            "replace_label": replace.get("full") or replace.get("label") or "",
+            "replace_label": replace_name,
             "replace_members": list(replace.get("members") or [replace_id]),
         }
     )

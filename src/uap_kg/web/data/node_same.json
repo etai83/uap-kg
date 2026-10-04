@@ -2,7 +2,7 @@
   "log": [
     {
       "at": "2026-10-03T15:47:24+00:00",
-      "keep_label": "man named John Lear",
+      "keep_label": "John Lear",
       "keep_type": "named_person",
       "keep_members": [
         "corbell:ENT-092"
@@ -44,24 +44,11 @@
       ]
     },
     {
-      "at": "2026-10-03T17:41:10+00:00",
-      "keep_label": "Matthew Sullivan",
-      "keep_type": "named_person",
-      "keep_members": [
-        "corbell:ENT-011"
-      ],
-      "replace_label": "Matthew",
-      "replace_members": [
-        "corbell:ENT-026"
-      ]
-    },
-    {
       "at": "2026-10-03T17:41:27+00:00",
       "keep_label": "Matthew Sullivan",
       "keep_type": "named_person",
       "keep_members": [
-        "corbell:ENT-011",
-        "corbell:ENT-026"
+        "corbell:ENT-011"
       ],
       "replace_label": "Sullivan",
       "replace_members": [
@@ -76,8 +63,7 @@
       "keep_members": [
         "borland:ENT-240",
         "corbell:ENT-340",
-        "corbell:ENT-011",
-        "corbell:ENT-026"
+        "corbell:ENT-011"
       ],
       "replace_label": "ICIG Matthew Sullivan",
       "replace_members": [
@@ -98,20 +84,6 @@
       ]
     },
     {
-      "at": "2026-10-03T17:43:00+00:00",
-      "keep_label": "Lou Elizondo",
-      "keep_type": "named_person",
-      "keep_members": [
-        "borland:ENT-255",
-        "borland:ENT-253",
-        "corbell:ENT-366"
-      ],
-      "replace_label": "Lou Elizondo interview",
-      "replace_members": [
-        "borland:ENT-305"
-      ]
-    },
-    {
       "at": "2026-10-03T17:50:08+00:00",
       "keep_label": "Jay Stratton",
       "keep_type": "named_person",
@@ -125,7 +97,7 @@
     },
     {
       "at": "2026-10-03T17:51:16+00:00",
-      "keep_label": "David Grush",
+      "keep_label": "David Grusch",
       "keep_type": "named_person",
       "keep_members": [
         "borland:ENT-123",
@@ -139,7 +111,7 @@
     },
     {
       "at": "2026-10-03T17:51:22+00:00",
-      "keep_label": "David Grush",
+      "keep_label": "David Grusch",
       "keep_type": "named_person",
       "keep_members": [
         "borland:ENT-123",
@@ -154,7 +126,7 @@
     },
     {
       "at": "2026-10-03T17:51:27+00:00",
-      "keep_label": "David Grush",
+      "keep_label": "David Grusch",
       "keep_type": "named_person",
       "keep_members": [
         "borland:ENT-123",
@@ -170,7 +142,7 @@
     },
     {
       "at": "2026-10-03T17:51:35+00:00",
-      "keep_label": "David Grush",
+      "keep_label": "David Grusch",
       "keep_type": "named_person",
       "keep_members": [
         "borland:ENT-123",
