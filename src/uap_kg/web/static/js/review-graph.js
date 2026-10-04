@@ -595,11 +595,7 @@ export async function initReviewGraph(initialNodeId = "", preferredVideo = "") {
         const sprite = new SpriteText(node.label || node.full);
         sprite.color = node.id === activeNodeId ? "#ffffff" : getNodeColor(node);
         sprite.textHeight = node.kind === "person" ? 6.5 : node.kind === "claim" ? 3.5 : 4.5;
-        sprite.backgroundColor = "rgba(5, 20, 36, 0.75)";
-        sprite.borderColor = node.id === activeNodeId ? "#00daf3" : "rgba(132, 147, 150, 0.35)";
-        sprite.borderWidth = node.id === activeNodeId ? 1.2 : 0.6;
-        sprite.borderRadius = 3;
-        sprite.padding = 2;
+        sprite.fontWeight = node.id === activeNodeId ? "700" : "400";
         return sprite;
       })
       .nodeThreeObjectExtend(true)
