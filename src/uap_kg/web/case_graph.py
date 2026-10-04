@@ -7,6 +7,7 @@ Arrow and AARO stay apart because their names differ.
 
 from __future__ import annotations
 
+import difflib
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -690,3 +691,119 @@ def restore_log(alias_path: Path | None = None) -> dict:
     state["log"].extend(state["undo"].pop())
     _save_state(path, state)
     return graph_payload(alias_path=path)
+
+
+def closest_items(
+    node_id: str,
+    type_filter: str = "all",
+    limit: int = 10,
+    repo: Path | None = None,
+    alias_path: Path | None = None,
+) -> list[dict]:
+    """Find top closest and most relevant items for a given node in the graph."""
+    payload = graph_payload(repo=repo, alias_path=alias_path)
+    nodes_by_id = {node["id"]: node for node in payload["nodes"]}
+    if node_id not in nodes_by_id:
+        return []
+
+    target = nodes_by_id[node_id]
+    target_name = (target.get("full") or target.get("label") or "").strip().lower()
+
+    # Precompute 1-hop direct neighbors and link kinds
+    direct: dict[str, list[str]] = {}
+    for link in payload["links"]:
+        s, t = link["source"], link["target"]
+        kind = link.get("kind") or "co_mention"
+        if s == node_id:
+            direct.setdefault(t, []).append(kind)
+        elif t == node_id:
+            direct.setdefault(s, []).append(kind)
+
+    # Precompute 2-hop shared neighbors
+    two_hop: dict[str, int] = {}
+    for link in payload["links"]:
+        s, t = link["source"], link["target"]
+        if s in direct and t != node_id and t not in direct:
+            two_hop[t] = two_hop.get(t, 0) + 1
+        elif t in direct and s != node_id and s not in direct:
+            two_hop[s] = two_hop.get(s, 0) + 1
+
+    ranked: list[dict] = []
+    for other_id, other in nodes_by_id.items():
+        if other_id == node_id:
+            continue
+
+        other_type = other.get("entityType") or other.get("kind") or "object"
+        if type_filter != "all":
+            if type_filter in ("named_person", "person"):
+                if other.get("kind") != "person" and other_type not in ("named_person", "person"):
+                    continue
+            elif type_filter == "claim":
+                if other.get("kind") != "claim":
+                    continue
+            else:
+                if other_type != type_filter:
+                    continue
+
+        score = 0
+        reason = ""
+
+        # Direct connection has highest priority
+        if other_id in direct:
+            kinds = direct[other_id]
+            if "same_surface" in kinds:
+                score = 100
+                reason = "Same surface entity across cases"
+            elif "same_assertion" in kinds:
+                score = 95
+                reason = "Asserts same claim"
+            elif "contradicts" in kinds:
+                score = 92
+                reason = "Contradicts claim"
+            elif "elaborates" in kinds:
+                score = 90
+                reason = "Elaborates claim"
+            elif "about" in kinds:
+                score = 85
+                reason = "Subject of claim"
+            elif "made" in kinds:
+                score = 85
+                reason = "Claimant on record"
+            else:
+                score = 75 + min(len(kinds), 5) * 4
+                reason = f"Mentioned together ({len(kinds)} moments)"
+        elif other_id in two_hop:
+            cnt = two_hop[other_id]
+            score = 40 + min(cnt, 5) * 6
+            reason = f"Shares {cnt} connection{'s' if cnt != 1 else ''}"
+
+        # Lexical similarity
+        other_name = (other.get("full") or other.get("label") or "").strip().lower()
+        if target_name and other_name and len(target_name) >= 3 and len(other_name) >= 3:
+            ratio = difflib.SequenceMatcher(None, target_name, other_name).ratio()
+            if target_name in other_name or other_name in target_name:
+                ratio = max(ratio, 0.78)
+            if ratio >= 0.7:
+                name_score = int(ratio * 76)
+                if name_score > score:
+                    score = name_score
+                    reason = f"Similar name ({int(ratio * 100)}%)"
+
+        # Case affinity bonus
+        target_cases = set(target.get("caseIds") or ([target["caseId"]] if target.get("caseId") else []))
+        other_cases = set(other.get("caseIds") or ([other["caseId"]] if other.get("caseId") else []))
+        if target_cases and other_cases and (target_cases & other_cases):
+            score += 3
+
+        if score > 0:
+            ranked.append(
+                {
+                    "node": other,
+                    "score": score,
+                    "reason": reason,
+                }
+            )
+
+    ranked.sort(key=lambda item: (item["score"], len(item["node"].get("full") or "")), reverse=True)
+    return ranked[:limit]
+

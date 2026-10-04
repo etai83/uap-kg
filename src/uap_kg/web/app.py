@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, Field
 
 from . import context, store
-from .case_graph import graph_payload, mark_same, restore_log, revert_log
+from .case_graph import closest_items, graph_payload, mark_same, restore_log, revert_log
 
 from typing import Optional
 
@@ -47,8 +47,29 @@ def timeline(request: Request):
 
 
 @app.get("/review", response_class=HTMLResponse)
-def review(request: Request, video: Optional[str] = None):
-    return _page(request, "review.html", "review", video_id=video or "")
+def review(
+    request: Request,
+    video: Optional[str] = None,
+    node: Optional[str] = None,
+    tab: Optional[str] = None,
+):
+    return _page(
+        request,
+        "review.html",
+        "review",
+        video_id=video or "",
+        initial_node=node or "",
+        initial_tab=tab or "graph",
+    )
+
+
+@app.get("/api/review/closest")
+def api_review_closest(
+    node_id: str,
+    type_filter: str = "all",
+    limit: int = 10,
+):
+    return closest_items(node_id=node_id, type_filter=type_filter, limit=limit)
 
 
 @app.get("/transcripts", response_class=HTMLResponse)
