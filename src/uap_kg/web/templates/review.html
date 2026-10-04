@@ -60,7 +60,7 @@
 
 <!-- VIEW 1: Item Graph Review -->
 <div id="review-graph-container" class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
-  <div id="review-stage" class="flex-1 relative min-h-0 bg-surface-container-lowest">
+  <div id="review-stage" class="flex-1 relative min-h-0 min-w-0 overflow-hidden bg-surface-container-lowest">
     <div id="review-cy" class="absolute inset-0" style="background:#010f1f"></div>
     <p id="review-status" class="absolute left-3 top-3 font-mono-data text-[11px] text-on-surface-variant pointer-events-none bg-surface/85 backdrop-blur border border-outline-variant/30 px-2.5 py-1 rounded">
       0 nodes · 0 links in graph
@@ -152,7 +152,7 @@
 }
 </script>
 <script type="module">
-  import { initReviewGraph } from "/static/js/review-graph.js?v=20261004a";
+  import { initReviewGraph } from "/static/js/review-graph.js?v=20261004c";
 
   const videoId = {{ video_id|tojson }};
   const initialNode = {{ initial_node|tojson }};
@@ -177,9 +177,9 @@
       tabClaimsBtn.className = "font-label-caps text-[11px] px-3 py-1.5 rounded transition-all bg-primary/20 text-primary border border-primary/40 font-bold";
       tabGraphBtn.className = "font-label-caps text-[11px] px-3 py-1.5 rounded transition-all text-on-surface-variant hover:text-on-surface border border-transparent";
 
-      if (!claimsInitialized && window.Aetheris && window.Aetheris.pageReview) {
+      if (!claimsInitialized && typeof Aetheris !== "undefined" && Aetheris.pageReview) {
         claimsInitialized = true;
-        window.Aetheris.pageReview(videoId);
+        Aetheris.pageReview(videoId);
       }
     } else {
       claimsContainer.classList.add("hidden");

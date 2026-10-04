@@ -334,6 +334,7 @@ function selectItem(nodeId, parentId = null) {
   // Refresh node visual state in 3D graph
   if (fg) {
     fg.nodeColor((n) => (n.id === activeNodeId ? "#ffffff" : getNodeColor(n)));
+    fg.nodeThreeObject(fg.nodeThreeObject());
     // Center camera smoothly toward node
     if (node.x != null && node.y != null && node.z != null) {
       const dist = 140;
@@ -611,6 +612,14 @@ export async function initReviewGraph(initialNodeId = "", preferredVideo = "") {
       .onNodeClick((node) => {
         selectItem(node.id, activeNodeId);
       });
+
+    const fitToStage = () => {
+      const w = stageEl.clientWidth;
+      const h = stageEl.clientHeight;
+      if (w > 0 && h > 0) fg.width(w).height(h);
+    };
+    fitToStage();
+    new ResizeObserver(fitToStage).observe(stageEl);
   }
 
   // Setup search input
