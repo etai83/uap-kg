@@ -774,7 +774,7 @@ def closest_items(
                 reason = f"Mentioned together ({len(kinds)} moments)"
         elif other_id in two_hop:
             cnt = two_hop[other_id]
-            score = 40 + min(cnt, 5) * 6
+            score = 45 + min(cnt, 5) * 6
             reason = f"Shares {cnt} connection{'s' if cnt != 1 else ''}"
 
         # Lexical similarity
@@ -782,9 +782,16 @@ def closest_items(
         if target_name and other_name and len(target_name) >= 3 and len(other_name) >= 3:
             ratio = difflib.SequenceMatcher(None, target_name, other_name).ratio()
             if target_name in other_name or other_name in target_name:
-                ratio = max(ratio, 0.78)
-            if ratio >= 0.7:
-                name_score = int(ratio * 76)
+                ratio = max(ratio, 0.75)
+            # Token overlap
+            target_words = set(target_name.split())
+            other_words = set(other_name.split())
+            shared = [w for w in other_words if len(w) > 2 and w in target_words]
+            if shared:
+                ratio = max(ratio, 0.5 + 0.15 * len(shared))
+
+            if ratio >= 0.5:
+                name_score = int(ratio * 68)
                 if name_score > score:
                     score = name_score
                     reason = f"Similar name ({int(ratio * 100)}%)"
@@ -793,16 +800,23 @@ def closest_items(
         target_cases = set(target.get("caseIds") or ([target["caseId"]] if target.get("caseId") else []))
         other_cases = set(other.get("caseIds") or ([other["caseId"]] if other.get("caseId") else []))
         if target_cases and other_cases and (target_cases & other_cases):
-            score += 3
+            score += 5
+            if not reason:
+                reason = f"Same interview case ({other.get('caseShort') or 'shared'})"
 
-        if score > 0:
-            ranked.append(
-                {
-                    "node": other,
-                    "score": score,
-                    "reason": reason,
-                }
-            )
+        # Prominence baseline
+        other_degree = len(payload.get("links", []))
+        score += min(len(direct.get(other_id, [])), 10) * 0.5 + 1
+        if not reason:
+            reason = f"Prominent {other_type} in knowledge base"
+
+        ranked.append(
+            {
+                "node": other,
+                "score": score,
+                "reason": reason,
+            }
+        )
 
     ranked.sort(key=lambda item: (item["score"], len(item["node"].get("full") or "")), reverse=True)
     return ranked[:limit]

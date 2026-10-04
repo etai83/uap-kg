@@ -124,6 +124,10 @@ function buildAdjacency() {
     adj.get(s).push({ target: t, kind });
     adj.get(t).push({ target: s, kind });
   });
+
+  allNodes.forEach((n) => {
+    n._degree = (adj.get(n.id) || []).length;
+  });
 }
 
 function computeClosestItems(nodeId, typeFilter = "all", limit = 10) {
@@ -131,6 +135,9 @@ function computeClosestItems(nodeId, typeFilter = "all", limit = 10) {
   if (!target) return [];
 
   const targetName = (target.full || target.label || "").trim().toLowerCase();
+  const targetTokens = new Set(targetName.split(/\s+/).filter((w) => w.length > 2));
+  const targetCases = new Set(target.caseIds || (target.caseId ? [target.caseId] : []));
+
   const directMap = new Map();
   (adj.get(nodeId) || []).forEach((rel) => {
     if (!directMap.has(rel.target)) directMap.set(rel.target, []);
@@ -165,6 +172,7 @@ function computeClosestItems(nodeId, typeFilter = "all", limit = 10) {
     let score = 0;
     let reason = "";
 
+    // Tier 1: Direct connection
     if (directMap.has(other.id)) {
       const kinds = directMap.get(other.id);
       if (kinds.includes("same_surface")) {
@@ -189,20 +197,28 @@ function computeClosestItems(nodeId, typeFilter = "all", limit = 10) {
         score = 75 + Math.min(kinds.length, 5) * 4;
         reason = `Mentioned together (${kinds.length} moments)`;
       }
-    } else if (twoHopMap.has(other.id)) {
+    }
+    // Tier 2: 2-Hop shared connection
+    else if (twoHopMap.has(other.id)) {
       const cnt = twoHopMap.get(other.id);
-      score = 40 + Math.min(cnt, 5) * 6;
+      score = 45 + Math.min(cnt, 5) * 6;
       reason = `Shares ${cnt} connection${cnt === 1 ? "" : "s"}`;
     }
 
+    // Tier 3: Lexical / Name similarity
     const otherName = (other.full || other.label || "").trim().toLowerCase();
     if (targetName && otherName && targetName.length >= 3 && otherName.length >= 3) {
       let sim = stringSimilarity(targetName, otherName);
       if (targetName.includes(otherName) || otherName.includes(targetName)) {
-        sim = Math.max(sim, 0.78);
+        sim = Math.max(sim, 0.75);
       }
-      if (sim >= 0.7) {
-        const nameScore = Math.floor(sim * 76);
+      const otherTokens = otherName.split(/\s+/).filter((w) => w.length > 2);
+      const shared = otherTokens.filter((t) => targetTokens.has(t));
+      if (shared.length > 0) {
+        sim = Math.max(sim, 0.5 + 0.15 * shared.length);
+      }
+      if (sim >= 0.5) {
+        const nameScore = Math.floor(sim * 68);
         if (nameScore > score) {
           score = nameScore;
           reason = `Similar name (${Math.floor(sim * 100)}%)`;
@@ -210,12 +226,35 @@ function computeClosestItems(nodeId, typeFilter = "all", limit = 10) {
       }
     }
 
-    if (score > 0) {
-      ranked.push({ node: other, score, reason });
+    // Tier 4: Same interview case context
+    const otherCases = new Set(other.caseIds || (other.caseId ? [other.caseId] : []));
+    let hasSharedCase = false;
+    for (const c of targetCases) {
+      if (otherCases.has(c)) {
+        hasSharedCase = true;
+        break;
+      }
     }
+    if (hasSharedCase) {
+      score += 5;
+      if (!reason) {
+        reason = `Same interview case (${other.caseShort || "shared"})`;
+      }
+    }
+
+    // Tier 5: Prominence baseline ensuring suggestions always available
+    const prominence = Math.min(other._degree || 0, 25);
+    score += prominence * 0.5 + 1;
+    if (!reason) {
+      reason = `Prominent ${TYPE_LABEL[otherType] || otherType} in knowledge base`;
+    }
+
+    ranked.push({ node: other, score, reason });
   });
 
-  ranked.sort((a, b) => b.score - a.score || (b.node.full || "").length - (a.node.full || "").length);
+  ranked.sort(
+    (a, b) => b.score - a.score || (b.node._degree || 0) - (a.node._degree || 0) || (b.node.full || "").length - (a.node.full || "").length
+  );
   return ranked.slice(0, limit);
 }
 
@@ -272,8 +311,15 @@ function updateGraph() {
 }
 
 function selectItem(nodeId, parentId = null) {
-  const node = byId.get(nodeId);
+  let node = byId.get(nodeId);
+  if (!node && nodeId) {
+    const term = String(nodeId).trim().toLowerCase();
+    node = allNodes.find(
+      (n) => (n.full || n.label || "").toLowerCase() === term || n.id.toLowerCase() === term || n.id.toLowerCase().includes(term)
+    );
+  }
   if (!node) return;
+  nodeId = node.id;
 
   if (!visibleNodeIds.has(nodeId)) {
     if (parentId && byId.has(parentId)) {

@@ -79,3 +79,15 @@ def test_api_review_closest_endpoint():
         assert item["node"]["entityType"] == "organization"
         assert item["score"] > 0
         assert "reason" in item
+
+
+def test_closest_items_always_suggests_ten():
+    # Node with 0 direct co-mentions should still return 10 suggestions
+    payload = graph_payload()
+    for sample in payload["nodes"][:15]:
+        results = closest_items(sample["id"], type_filter="all", limit=10)
+        assert len(results) == 10, f"Expected 10 suggestions for {sample['id']}, got {len(results)}"
+        for r in results:
+            assert r["score"] > 0
+            assert r["reason"]
+
