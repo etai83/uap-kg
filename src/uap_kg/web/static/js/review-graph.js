@@ -333,7 +333,7 @@ function selectItem(nodeId, parentId = null) {
 
   // Refresh node visual state in 3D graph
   if (fg) {
-    fg.nodeColor((n) => (n.id === activeNodeId ? "#ffffff" : getNodeColor(n)));
+    fg.nodeColor((n) => getNodeColor(n));
     fg.nodeThreeObject(fg.nodeThreeObject());
     // Center camera smoothly toward node
     if (node.x != null && node.y != null && node.z != null) {
@@ -589,16 +589,16 @@ export async function initReviewGraph(initialNodeId = "", preferredVideo = "") {
     fg = ForceGraph3D()(stageEl)
       .backgroundColor("#010f1f")
       .nodeLabel((node) => `${node.full || node.label} (${TYPE_LABEL[getNodeType(node)] || getNodeType(node)})`)
-      .nodeColor((node) => (node.id === activeNodeId ? "#ffffff" : getNodeColor(node)))
+      .nodeColor((node) => getNodeColor(node))
       .nodeVal((node) => (node.kind === "person" ? 3.5 : node.kind === "claim" ? 1.5 : 2.2))
       .nodeThreeObject((node) => {
         const sprite = new SpriteText(node.label || node.full);
-        sprite.color = node.id === activeNodeId ? "#ffffff" : getNodeColor(node);
+        sprite.color = getNodeColor(node);
         sprite.textHeight = node.kind === "person" ? 6.5 : node.kind === "claim" ? 3.5 : 4.5;
         sprite.fontWeight = node.id === activeNodeId ? "700" : "400";
         return sprite;
       })
-      .nodeThreeObjectExtend(true)
+      .nodeThreeObjectExtend(false)
       .linkColor((link) => EDGE_COLOR[link.kind] || "rgba(195,245,255,0.4)")
       .linkWidth((link) => (link.kind === "explored" ? 0.7 : link.kind === "same_surface" ? 1.6 : 0.9))
       .linkDirectionalParticles((link) => (link.kind === "explored" ? 2 : 0))
